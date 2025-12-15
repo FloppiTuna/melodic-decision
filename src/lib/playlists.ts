@@ -31,6 +31,21 @@ export const playlists: MDPlaylist[] = [
                 }
             }
         ]
+    }),
+    createPlaylist({
+        name: "SmoothJazz",
+        style: {
+            primaryColor: "#3dbdcbff",
+            designVariant: MDDesignVariant.Modern2011
+        },
+        sources: [
+            {
+                type: "jellyfin",
+                config: {
+                    playlistId: "44cfa6fef8e4eecc9153390e4b69de6e"
+                }
+            }
+        ]
     })
 ];
 

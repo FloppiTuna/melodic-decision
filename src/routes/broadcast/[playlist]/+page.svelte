@@ -1,18 +1,23 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import type { MDSong, MDSongPool } from "$lib/types";
+    import { load } from "./+page.js";
 
     export let data; // playlist data
 
     let loadingText = "";
     let overlayEl: HTMLDivElement;
-    let debugEl: HTMLDivElement;
+
+    let isDebugVisible = false;
 
     let songPool: MDSongPool = [];
+
+    let artistPhotos: Record<string, object> = {};
 
     let currentSong: MDSong = {
         title: "",
         artist: "",
+        artistId: "",
         album: "",
         releaseYear: 0,
         mediaUrl: "",
@@ -29,13 +34,28 @@
         content: "",
     };
 
-	let rowLayout = "top-picture";
-    let pictureLayout = "left-picture";
+    let visiblePhotoMode: "generic" | "artist" = "generic";
+    let visiblePhoto = "";
+
+	let verticalLayout = "top-picture";
+    let horizontalLayout = "left-picture";
 
 	const LAYOUT_CHANGE_EVERY = 2; // TODO: make random; or need to figure out how it works on MC
+    const CYCLE_SECONDS = 30.033;
 
-	let cycles = 0;
+	let cycles = 0; // 1 cycle = 30.033 secs.
+
 	let cyclesSinceLastLayoutChange = 0;
+
+    function randCyclesBetweenMinutes(minMinutes: number, maxMinutes: number) {
+        const minSeconds = minMinutes * 60;
+        const maxSeconds = maxMinutes * 60;
+        const seconds = Math.random() * (maxSeconds - minSeconds) + minSeconds;
+        return Math.ceil(seconds / CYCLE_SECONDS);
+    }
+
+    let cyclesUntilHorizontalSwitch = randCyclesBetweenMinutes(1, 5);
+    let cyclesUntilVerticalSwitch = randCyclesBetweenMinutes(2, 8);
 
     function render() {
         // this function is responsible for cycling through the various layouts, as well as updating song info, images, etc.
@@ -47,6 +67,20 @@
             artist: currentSong?.artist || "",
             album: currentSong?.album || "",
             releaseYear: currentSong?.releaseYear || 0,
+        }
+
+        // pick a random artist photo, if avail
+        if (artistPhotos[currentSong.artistId.Id].artistthumb) {
+            visiblePhotoMode = "artist"
+            
+            // pick random artist thumbnail
+            const pickedImage = artistPhotos[currentSong.artistId.Id].artistthumb[Math.floor(Math.random() * artistPhotos[currentSong.artistId.Id].artistthumb.length)]
+
+            visiblePhoto = pickedImage.url
+
+
+        } else {
+            visiblePhotoMode = "generic"
         }
 
         // pick a random "did you know" fact from global database
@@ -62,20 +96,23 @@
 
         // layout cycling logic
 		cycles++;
-		cyclesSinceLastLayoutChange++;
 
-		if (cyclesSinceLastLayoutChange >= LAYOUT_CHANGE_EVERY) {
-			rowLayout = rowLayout === "top-picture" ? "top-details" : "top-picture";
-			cyclesSinceLastLayoutChange = 0;
-			console.debug('Horizontal layout toggled! rowLayout=', rowLayout);
+        cyclesUntilHorizontalSwitch--;
+        cyclesUntilVerticalSwitch--;
 
-            pictureLayout = pictureLayout === "left-picture" ? "right-picture" : "left-picture";
-            console.debug('Picture layout toggled! pictureLayout=', pictureLayout);
-		}
+        if (cyclesUntilHorizontalSwitch <= 0) {
+            horizontalLayout = horizontalLayout === "left-picture" ? "right-picture" : "left-picture";
+            cyclesUntilHorizontalSwitch = randCyclesBetweenMinutes(1, 5);
+            console.debug(`cycled horizontal, now ${horizontalLayout}. next change in ${cyclesUntilHorizontalSwitch} cycles`);
+        }
+        if (cyclesUntilVerticalSwitch <= 0) {
+            verticalLayout = verticalLayout === "top-picture" ? "top-details" : "top-picture";
+            cyclesUntilVerticalSwitch = randCyclesBetweenMinutes(2, 8);
+            console.debug(`cycled vertical, now ${verticalLayout}. next change in ${cyclesUntilVerticalSwitch} cycles`);
+        }
 
-        return null;
+        return;
     }
-
 
     // onMount(() => {
     onMount(async () => {
@@ -113,6 +150,7 @@
                                 songPool.push({
                                     title: element.Name,
                                     artist: (element.Artists || []).join(", "),
+                                    artistId: element.AlbumArtists[0] || "",
                                     album: element.Album,
                                     releaseYear: element.ProductionYear,
                                     mediaUrl: `/api/music/getSongJellyfin/${element.Id}`,
@@ -127,6 +165,64 @@
 
             // after songpool has been fully populated
             loadingText = `Finalizing playlist... (${songPool.length} songs)`;
+
+            // get each artist in the song pool and fetch images for them
+            let artistSet = new Set<string | undefined>();
+            songPool.forEach((song) => {
+                artistSet.add(song.artistId);
+            });
+
+            // Wait for all artist image fetches before continuing.
+            // TODO (dec 13, 2025): this whole thing is a fucking botchfest pls pls PLS fix it later
+            // "now nepeta why is that" shut up cat also:
+            // for some reason im only handling the 1st artist in the artist list from jellyfin and the way jellyfin passses it will be different from other sources in the future
+            // so basically, i need to clean up how exactly i pass through the artist ids, pick the right way to extract the musicbrainz id, and then search it
+            // this is why typescript is whining about .Id not existing on a string because IT ISNT A STRING GRAHHHHH
+            // ill fix this soon probably
+            const artistIds = Array.from(artistSet).filter(Boolean) as string[];
+            if (artistIds.length > 0) {
+                await Promise.all(
+                    artistIds.map(async (artistId) => {
+                        console.log(artistId);
+
+                        loadingText = `Fetching images for artist ${artistId.Id}`;
+
+                        try {
+                            // first get the musicbrainz id from jellyfin
+                            const mbRes = await fetch(
+                                `/api/music/getArtistMetadataJellyfin/${encodeURIComponent(artistId.Id)}`,
+                            );
+                            if (mbRes.ok) {
+                                const mbData = await mbRes.json();
+                                if (mbData && mbData.ProviderIds.MusicBrainzArtist) {
+                                    console.log(`Received MusicBrainz ID for artist ID ${artistId.Id}:`, mbData.ProviderIds.MusicBrainzArtist);
+                                    console.log(mbData.ProviderIds.MusicBrainzArtist);
+
+                                    // now fetch images using that musicbrainz id
+                                    const imgRes = await fetch(
+                                        `/api/images/getArtistImages/${mbData.ProviderIds.MusicBrainzArtist}`,
+                                    );
+                                    if (imgRes.ok) {
+                                        const imgData = await imgRes.json();
+                                        console.log(`Received images for MusicBrainz ID ${mbData.ProviderIds.MusicBrainzArtist}:`, imgData);
+
+                                        // now match this up with the artist 
+                                        artistPhotos[artistId.Id] = imgData
+
+                                    } else {
+                                        console.warn(`Failed to fetch images for MusicBrainz ID ${mbData.ProviderIds.MusicBrainzArtist}:`, imgRes.statusText);
+                                    }
+                                }
+                            }
+
+                        } catch (err) {
+                            console.error(`Error fetching images for artist ID ${artistId.Id}:`, err);
+                        }
+                    }),
+                );
+            }
+
+            console.log("Final artist meta:", artistPhotos)
             console.log("Final song pool:", songPool);
 
             overlayEl?.remove();
@@ -134,9 +230,10 @@
             // begin shuffling thru songs in the song pool
             // begin render loop...cycle every 30 seconds
 
+            // in my analysis of music choice screen recordings ive found that the broadcast will cycle once every 30.033 seconds
             setInterval(() => {
                 render();
-            }, 30000); // every 30 seconds
+            }, CYCLE_SECONDS * 1000);
 
             let hasDoneInitialRender = false;
             let lastSong = null;
@@ -160,37 +257,51 @@
                 await new Promise((resolve) => {
                     audio.onended = resolve;
                 });
-
-
-
             }
         } else {
             loadingText =
                 "Broadcast configuration error. Please contact your cable provider.";
         }
     });
+
+    function handleKeyPressed(event: KeyboardEvent) {
+        if (event.key == "r") {
+            // force render
+            render()
+        } else if (event.key == "d") {
+            isDebugVisible = !isDebugVisible
+        }
+    }
+
+
 </script>
 
+<svelte:window on:keydown={handleKeyPressed} />
+
 <div class="loadingOverlay" bind:this={overlayEl}>
-	<img src="/logo.png" alt="Melodic Decision" height="128" />
+	<img src="/logo-fancy.gif" alt="Melodic Decision" height="128" />
 	<p>{loadingText}</p>
 </div>
 
+{#if isDebugVisible}
+    <div class="debugOverlay">
+        <p><b>melodic decision debug info</b></p>
+        <p>current song: {JSON.stringify(currentSong)}</p>
+        <p>cycle: {cycles}</p>
+        <p>layout type: V: {verticalLayout}, H: {horizontalLayout}</p>
+        <p>cycles until horiz switch: {cyclesUntilHorizontalSwitch} ({cyclesUntilHorizontalSwitch * CYCLE_SECONDS})</p>
+        <p>cycles until verti switch: {cyclesUntilVerticalSwitch} ({cyclesUntilVerticalSwitch * CYCLE_SECONDS})</p>
+    </div>
+{/if}
 
-<div class="debugOverlay" bind:this={debugEl}>
-    <p><b>melodic decision debug info</b></p>
-    <p>current song: {JSON.stringify(currentSong)}</p>
-    <p>cycle: {cycles}</p>
-    <p>layout type: {rowLayout} {pictureLayout}</p>
-</div>
 
 <div class="broadcast-viewport">
 	<div class="stage">
-		<div class="stage-inner" class:reverse="{rowLayout === 'top-details'}">
+		<div class="stage-inner" class:reverse="{verticalLayout === 'top-details'}">
 			<!-- render once, flip with CSS class -->
-			<div class="pictureRow" class:reverse="{pictureLayout === 'right-picture'}">
+			<div class="pictureRow" class:reverse="{horizontalLayout === 'right-picture'}">
 				<div class="photo">
-					<img src="/temp.jpg" alt="Artist Photo" />
+					<img src={visiblePhotoMode == "generic" ? "/generic.png" : visiblePhoto} alt="artist" />
 				</div>
 				<div class="didYouKnow">
 					<div class="title">
@@ -225,8 +336,6 @@
 	:root {
 		--accent-color: #ff0000;
 		--text-color: #a3a3a3;
-
-        --is-playlistBar-hollowed: false;
 	}
 
 	.loadingOverlay {
@@ -378,6 +487,8 @@
 		display: flex;
 		flex-direction: column;
 		flex: none; /* do not stretch — keep baseline height */
+
+        border-bottom: #a3a3a3 4px;
 	}
 
 	.detailRow .playlist-name {

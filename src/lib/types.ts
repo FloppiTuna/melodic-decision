@@ -36,6 +36,9 @@ export type MDSong = {
     // The artist of the song.
     artist: string;
 
+    // The artist ID of the song (if available).
+    artistId?: string;
+
     // The album of the song.
     album?: string;
 
