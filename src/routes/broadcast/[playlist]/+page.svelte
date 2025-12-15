@@ -22,7 +22,7 @@
         releaseYear: 0,
         mediaUrl: "",
     };
-    
+
     let visibleSongInfo = {
         title: "",
         artist: "",
@@ -40,12 +40,8 @@
 	let verticalLayout = "top-picture";
     let horizontalLayout = "left-picture";
 
-	const LAYOUT_CHANGE_EVERY = 2; // TODO: make random; or need to figure out how it works on MC
-    const CYCLE_SECONDS = 30.033;
-
-	let cycles = 0; // 1 cycle = 30.033 secs.
-
-	let cyclesSinceLastLayoutChange = 0;
+    const CYCLE_SECONDS = 30.033; // 1 cycle = 30.033 secs.
+	let cycles = 0;
 
     function randCyclesBetweenMinutes(minMinutes: number, maxMinutes: number) {
         const minSeconds = minMinutes * 60;
@@ -59,7 +55,7 @@
 
     function render() {
         // this function is responsible for cycling through the various layouts, as well as updating song info, images, etc.
-        
+
         // update song info display
         console.debug(`RENDER: currentSong =`, currentSong);
         visibleSongInfo = {
@@ -72,7 +68,7 @@
         // pick a random artist photo, if avail
         if (artistPhotos[currentSong.artistId.Id].artistthumb) {
             visiblePhotoMode = "artist"
-            
+
             // pick random artist thumbnail
             const pickedImage = artistPhotos[currentSong.artistId.Id].artistthumb[Math.floor(Math.random() * artistPhotos[currentSong.artistId.Id].artistthumb.length)]
 
@@ -92,7 +88,7 @@
         } else {
             visibleDidYouKnowFact = { content: "" };
         }
-        
+
 
         // layout cycling logic
 		cycles++;
@@ -169,7 +165,7 @@
             // get each artist in the song pool and fetch images for them
             let artistSet = new Set<string | undefined>();
             songPool.forEach((song) => {
-                artistSet.add(song.artistId);
+                artistSet.add(song.artistId.Id);
             });
 
             // Wait for all artist image fetches before continuing.
@@ -182,20 +178,18 @@
             const artistIds = Array.from(artistSet).filter(Boolean) as string[];
             if (artistIds.length > 0) {
                 await Promise.all(
-                    artistIds.map(async (artistId) => {
-                        console.log(artistId);
-
-                        loadingText = `Fetching images for artist ${artistId.Id}`;
+                    artistIds.map(async (artistId) => {                        
+                        loadingText = `Fetching images for artist ${artistId}`;
 
                         try {
                             // first get the musicbrainz id from jellyfin
                             const mbRes = await fetch(
-                                `/api/music/getArtistMetadataJellyfin/${encodeURIComponent(artistId.Id)}`,
+                                `/api/music/getArtistMetadataJellyfin/${encodeURIComponent(artistId)}`,
                             );
                             if (mbRes.ok) {
                                 const mbData = await mbRes.json();
                                 if (mbData && mbData.ProviderIds.MusicBrainzArtist) {
-                                    console.log(`Received MusicBrainz ID for artist ID ${artistId.Id}:`, mbData.ProviderIds.MusicBrainzArtist);
+                                    console.log(`Received MusicBrainz ID for artist ID ${artistId}:`, mbData.ProviderIds.MusicBrainzArtist);
                                     console.log(mbData.ProviderIds.MusicBrainzArtist);
 
                                     // now fetch images using that musicbrainz id
@@ -206,17 +200,18 @@
                                         const imgData = await imgRes.json();
                                         console.log(`Received images for MusicBrainz ID ${mbData.ProviderIds.MusicBrainzArtist}:`, imgData);
 
-                                        // now match this up with the artist 
-                                        artistPhotos[artistId.Id] = imgData
+                                        // now match this up with the artist
+                                        artistPhotos[artistId] = imgData
 
                                     } else {
                                         console.warn(`Failed to fetch images for MusicBrainz ID ${mbData.ProviderIds.MusicBrainzArtist}:`, imgRes.statusText);
+                                        artistPhotos[artistId] = { artistthumbs: {} } // todo: this is a bit weird...ugh this whople FUNCTION is weird. never trust me at a keyboard ever again
                                     }
                                 }
                             }
 
                         } catch (err) {
-                            console.error(`Error fetching images for artist ID ${artistId.Id}:`, err);
+                            console.error(`Error fetching images for artist ID ${artistId}:`, err);
                         }
                     }),
                 );
@@ -269,6 +264,7 @@
             // force render
             render()
         } else if (event.key == "d") {
+            // toggle debug
             isDebugVisible = !isDebugVisible
         }
     }
@@ -298,7 +294,6 @@
 <div class="broadcast-viewport">
 	<div class="stage">
 		<div class="stage-inner" class:reverse="{verticalLayout === 'top-details'}">
-			<!-- render once, flip with CSS class -->
 			<div class="pictureRow" class:reverse="{horizontalLayout === 'right-picture'}">
 				<div class="photo">
 					<img src={visiblePhotoMode == "generic" ? "/generic.png" : visiblePhoto} alt="artist" />
@@ -444,6 +439,7 @@
         /* CHANGED: give the image explicit dimensions so object-fit works,
            make it fill the container and crop if necessary */
         width: 100%;
+
         height: 100%;
         object-fit: cover;
         display: block; /* removes inline gap/descender issues */
