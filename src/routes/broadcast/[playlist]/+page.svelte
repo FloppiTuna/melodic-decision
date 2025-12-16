@@ -1,12 +1,14 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import type { MDSong, MDSongPool } from "$lib/types";
+    import { MDDesignVariant, type MDSong, type MDSongPool } from "$lib/types";
     import { load } from "./+page.js";
 
     export let data; // playlist data
 
     let loadingText = "";
     let overlayEl: HTMLDivElement;
+
+    let renderLoopId: number = 0;
 
     let isDebugVisible = false;
 
@@ -226,12 +228,13 @@
             // begin render loop...cycle every 30 seconds
 
             // in my analysis of music choice screen recordings ive found that the broadcast will cycle once every 30.033 seconds
-            setInterval(() => {
+            renderLoopId = setInterval(() => {
                 render();
             }, CYCLE_SECONDS * 1000);
 
             let hasDoneInitialRender = false;
-            let lastSong = null;
+            let lastSong: MDSong | null = null;
+
             while (true) {
                 const randomIndex = Math.floor(Math.random() * songPool.length);
                 currentSong = songPool[randomIndex];
@@ -262,10 +265,11 @@
     function handleKeyPressed(event: KeyboardEvent) {
         if (event.key == "r") {
             // force render
-            render()
+            clearTimeout(renderLoopId);
+            render();
         } else if (event.key == "d") {
             // toggle debug
-            isDebugVisible = !isDebugVisible
+            isDebugVisible = !isDebugVisible;
         }
     }
 

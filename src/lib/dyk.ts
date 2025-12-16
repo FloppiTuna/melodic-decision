@@ -25,6 +25,10 @@ export const didYouKnowDatabase: MDDidYouKnowFact[] = [
     {
         text: "You can now suggest songs to be played next! Just think of a song, and then wait 3 minutes to 48 hours for it to play.",
         type: MDDidYouKnowFactType.Global
+    },
+    {
+        text: "Don't forget the meatball!",
+        type: MDDidYouKnowFactType.Global
     }
     
 ];
