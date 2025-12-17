@@ -12,7 +12,7 @@ export const playlists: MDPlaylist[] = [
             {
                 type: "jellyfin",
                 config: {
-                    playlistId: "74f64cab4d776693eecbc2016c161589"
+                    playlistId: "0647a25ef852f72541a86fffd289022a"
                 }
             }
         ]
