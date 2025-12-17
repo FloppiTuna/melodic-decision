@@ -29,6 +29,26 @@ export const didYouKnowDatabase: MDDidYouKnowFact[] = [
     {
         text: "Don't forget the meatball!",
         type: MDDidYouKnowFactType.Global
+    },
+    {
+        text: "So like this one time, I was watching my telly yeah? And they had that program playing the choons twenty four seven and i was like ouuhh mate i could totally pull that off, so i went and grabbed me dad's commodore and me nan's capture card and shoved some avenged sevenfold into the tape deck and shoved it into the telly and now i fgot all me mates listenin to some music it's totally sick innit..im goin to jail!",
+        type: MDDidYouKnowFactType.Global
+    },
+    {
+        text: "I wonder how much crap I can put here before people get angry.",
+        type: MDDidYouKnowFactType.Global
+    },
+    {
+        text: "Segmentation fault (core dumped)",
+        type: MDDidYouKnowFactType.Global
+    },
+    {
+        text: "We're having gumbo for dinner.",
+        type: MDDidYouKnowFactType.Global
+    },
+    {
+        text: "<i>Does anyone else feel a bit slanted?</i>",
+        type: MDDidYouKnowFactType.Global
     }
     
 ];
