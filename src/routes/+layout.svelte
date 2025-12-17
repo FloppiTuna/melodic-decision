@@ -6,6 +6,7 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+  <title>Melodic Decision Broadcast</title>
 </svelte:head>
 
 <style lang="postcss">
