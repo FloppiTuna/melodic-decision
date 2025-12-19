@@ -49,7 +49,7 @@
 
     const CYCLE_SECONDS = 30.033; // 1 cycle = 30.033 secs.
     let cycles = 0;
-
+    
     function randCyclesBetweenMinutes(minMinutes: number, maxMinutes: number) {
         const minSeconds = minMinutes * 60;
         const maxSeconds = maxMinutes * 60;
@@ -61,6 +61,9 @@
     let cyclesUntilVerticalSwitch = randCyclesBetweenMinutes(2, 8);
 
     let lastDyk = "";
+
+    let playlistGeneration: MDSong[]
+    let playlistGenerationCount: number = 0;
 
     /*
      * Renders the viewport and increments by one cycle.
@@ -299,26 +302,36 @@
             let hasDoneInitialRender = false;
             let lastSong: MDSong | null = null;
 
+
+
             while (true) {
-                const randomIndex = Math.floor(Math.random() * songPool.length);
-                currentSong = songPool[randomIndex];
+                 playlistGeneration = [ ...songPool ]; // copy playlist to new generation
 
-                // avoid repeating the same song twice in a row
-                if (currentSong === lastSong) continue;
-                lastSong = currentSong;
+                while (playlistGeneration.length != 0) {
+                    // Pick a random song and set it as the current song
+                    const pickedIndex = Math.floor(Math.random() * playlistGeneration.length);
+                    currentSong = songPool[pickedIndex];
 
-                let audio = new Audio(currentSong.mediaUrl);
-                audio.play();
+                    // Play it!
+                    let player = new Audio(currentSong.mediaUrl);
+                    player.play();
 
-                if (!hasDoneInitialRender) {
-                    render();
-                    hasDoneInitialRender = true;
+                    // Remove this selection from the playlist generation
+                    playlistGeneration.splice(pickedIndex, 1);
+
+                    // if we haven't run the initial render yet, do it
+                    if (!hasDoneInitialRender) {
+                        render();
+                        hasDoneInitialRender = true;
+                    }
+
+                    // Wait for completion
+                    await new Promise((resolve) => {
+                        player.onended = resolve;
+                    })
                 }
 
-                // wait for song to finish
-                await new Promise((resolve) => {
-                    audio.onended = resolve;
-                });
+                console.log(`Playlist generation ${playlistGenerationCount} has completed`);
             }
         } else {
             loadingText =
@@ -359,6 +372,8 @@
             cycles until verti switch: {cyclesUntilVerticalSwitch} ({cyclesUntilVerticalSwitch *
                 CYCLE_SECONDS})
         </p>
+        <p>playlist generation #{playlistGenerationCount}</p>
+        <p>remaining: {playlistGeneration.length}/{songPool.length} ({Math.round(playlistGeneration.length / songPool.length)}%)</p>
     </div>
 {/if}
 
