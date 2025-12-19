@@ -7,6 +7,13 @@
         type MDSongPool,
     } from "$lib/types";
     import { load } from "./+page.js";
+    import createDOMPurify from 'dompurify';
+
+    let purify;
+
+    if (typeof window !== 'undefined') {
+        purify = createDOMPurify(window);
+    }
 
     export let data; // playlist data
 
@@ -108,7 +115,7 @@
                 "--primary-color",
                 newColor
             );
-            cyclesUntilVerticalSwitch = randCyclesBetweenMinutes(4, 28);
+            cyclesUntilPrimaryColorSwitch = randCyclesBetweenMinutes(4, 28);
             console.debug(
                 `RENDER #${cycles}: cycled color, now ${newColor}. next change in ${cyclesUntilPrimaryColorSwitch} cycles`,
             )
@@ -418,7 +425,11 @@
                         </p>
                     </div>
                     <div class="content">
-                        <p>{visibleDidYouKnowFact.content}</p>
+                        <p>{@html purify.sanitize(visibleDidYouKnowFact.content, {
+                                ALLOWED_TAGS: ['b', 'i', 'em', 'strong'],
+                                ALLOWED_ATTR: []
+                            })}
+                        </p>
                     </div>
                 </div>
             </div>

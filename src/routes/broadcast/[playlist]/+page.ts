@@ -12,3 +12,5 @@ export async function load({ params, fetch }) {
     console.error(`Failed to load playlist: ${res.status}`);
     return { playlist: null };
 }
+
+export const ssr = false;
