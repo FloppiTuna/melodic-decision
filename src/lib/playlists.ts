@@ -5,7 +5,11 @@ export const playlists: MDPlaylist[] = [
         name: "Christmas",
         displayName: "SOUNDS OF THE SEASONS: CHRISTMAS",
         style: {
-            primaryColor: "#D6001C",
+            primaryColor: [
+                "#BB2528",
+                "#F8B229",
+                "#165B33"
+            ],
             designVariant: MDDesignVariant.Modern2011,
         },
         sources: [
@@ -20,7 +24,9 @@ export const playlists: MDPlaylist[] = [
     createPlaylist({
         name: "Classic Rock",
         style: {
-            primaryColor: "#0000FF",
+            primaryColor: [
+                "#0000FF"
+            ],
             designVariant: MDDesignVariant.Modern2011,
         },
         sources: [
@@ -35,7 +41,9 @@ export const playlists: MDPlaylist[] = [
     createPlaylist({
         name: "SmoothJazz",
         style: {
-            primaryColor: "#3dbdcbff",
+            primaryColor: [
+                "#3dbdcbff"
+            ],
             designVariant: MDDesignVariant.Modern2011
         },
         sources: [

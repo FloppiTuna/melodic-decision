@@ -7,8 +7,8 @@ export enum MDDesignVariant {
 
 // Style definitions for the playlist.
 export type MDStyle = {
-    // The primary color for this playlist. This will be used for elements on the viewer.
-    primaryColor: string;
+    // The set of primary colors for this playlist.
+    primaryColor: string[];
     
     // An optional override for the "DID YOU KNOW?" header text.
     didYouKnowOverride?: string

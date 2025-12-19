@@ -59,6 +59,7 @@
 
     let cyclesUntilHorizontalSwitch = randCyclesBetweenMinutes(1, 5);
     let cyclesUntilVerticalSwitch = randCyclesBetweenMinutes(2, 8);
+    let cyclesUntilPrimaryColorSwitch = randCyclesBetweenMinutes(4, 28);
 
     let lastDyk = "";
 
@@ -70,10 +71,11 @@
      * This will update the photo, did you know, song info, and will also adjust the layout if it is time to do so (determined by cyclesUntil...Switch).
      */
     function render() {
-                // Layout code, woo... increment current cycles by one, decrement timers for switching
+        // Layout code, woo... increment current cycles by one, decrement timers for switching
         cycles++;
         cyclesUntilHorizontalSwitch--;
         cyclesUntilVerticalSwitch--;
+        cyclesUntilPrimaryColorSwitch--;
 
         // if it's time to do a horizontal switch...
         if (cyclesUntilHorizontalSwitch <= 0) {
@@ -99,6 +101,18 @@
             );
         }
 
+        // if it's time to switch the primary color...
+        if (cyclesUntilPrimaryColorSwitch <= 0) {
+            const newColor = data.playlist.style.primaryColor[Math.floor(Math.random() * data.playlist.style.primaryColor.length)]
+            document.documentElement.style.setProperty(
+                "--primary-color",
+                newColor
+            );
+            cyclesUntilVerticalSwitch = randCyclesBetweenMinutes(4, 28);
+            console.debug(
+                `RENDER #${cycles}: cycled color, now ${newColor}. next change in ${cyclesUntilPrimaryColorSwitch} cycles`,
+            )
+        }
 
 
         // Update song information display
@@ -156,10 +170,10 @@
         if (data?.playlist) {
             loadingText = `Loading playlist "${data.playlist.name}"...`;
 
-            // set the accent color (used for colored elements on screen)
+            // set the initial primary color
             document.documentElement.style.setProperty(
-                "--accent-color",
-                data.playlist.style.primaryColor,
+                "--primary-color",
+                data.playlist.style.primaryColor[Math.floor(Math.random() * data.playlist.style.primaryColor.length)],
             );
 
             // Begin the great Conglomeration o' Sources
@@ -300,9 +314,6 @@
             }, CYCLE_SECONDS * 1000);
 
             let hasDoneInitialRender = false;
-            let lastSong: MDSong | null = null;
-
-
 
             while (true) {
                  playlistGeneration = [ ...songPool ]; // copy playlist to new generation
@@ -372,6 +383,10 @@
             cycles until verti switch: {cyclesUntilVerticalSwitch} ({cyclesUntilVerticalSwitch *
                 CYCLE_SECONDS})
         </p>
+        <p>
+            cycles until color switch: {cyclesUntilPrimaryColorSwitch} ({cyclesUntilPrimaryColorSwitch *
+                CYCLE_SECONDS})
+        </p>
         <p>playlist generation #{playlistGenerationCount}</p>
         <p>remaining: {playlistGeneration.length}/{songPool.length} ({Math.round(playlistGeneration.length / songPool.length)}%)</p>
     </div>
@@ -435,7 +450,7 @@
 
 <style>
     :root {
-        --accent-color: #ff0000;
+        --primary-color: #ff0000;
         --text-color: #a3a3a3;
     }
 
@@ -562,7 +577,7 @@
         margin: 0;
         font-size: 24px; /* baseline */
         text-transform: uppercase;
-        color: var(--accent-color);
+        color: var(--primary-color);
     }
 
     .pictureRow .didYouKnow .content {
@@ -593,7 +608,7 @@
     }
 
     .detailRow .playlist-name {
-        background-color: var(--accent-color);
+        background-color: var(--primary-color);
         color: #000000;
         font-size: 24px; /* baseline */
         font-weight: normal;
