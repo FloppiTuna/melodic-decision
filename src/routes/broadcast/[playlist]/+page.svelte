@@ -165,7 +165,7 @@
             };
         } else {
             // if none are available however, use the Sad Fella Mode
-            visibleDidYouKnowFact = { content: ":((" };
+            visibleDidYouKnowFact = { content: "..." };
         }
 
         // we're done here
