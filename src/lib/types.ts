@@ -8,7 +8,7 @@ export enum MDDesignVariant {
 // Style definitions for the playlist.
 export type MDStyle = {
     // The set of primary colors for this playlist.
-    primaryColor: string[];
+    primaryColor?: string[];
     
     // An optional override for the "DID YOU KNOW?" header text.
     didYouKnowOverride?: string
@@ -88,7 +88,12 @@ export type MDDidYouKnowFact = {
 
 // default style values for a MD playlist
 export const defaultMDStyle: MDStyle = {
-    primaryColor: "#000000",
+    primaryColor: [
+        "#FF1FAD",
+        "#00D9FD",
+        "#FFE500",
+        "#15D991"
+    ],
     designVariant: MDDesignVariant.Modern2011,
     useGlobalDidYouKnowFacts: true,
 };
