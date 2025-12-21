@@ -511,7 +511,10 @@
 
     .artistGrid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+        grid-template-columns: repeat(
+            auto-fit,
+            minmax(clamp(48px, 9vw, 88px), 1fr)
+        );
         gap: 12px;
         width: 85%;
         max-width: 960px;
