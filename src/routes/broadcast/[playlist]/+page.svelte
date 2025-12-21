@@ -31,6 +31,8 @@
 
 
     let artistPhotos: Record<string, object> = {};
+    let artistSet = new Set<string | undefined>();
+    $: artistList = Array.from(artistSet).filter(Boolean);
 
     let currentSong: MDSong = {
         title: "",
@@ -241,10 +243,12 @@
             loadingText = `Finalizing playlist... (${songPool.length} songs)`;
 
             // get each artist in the song pool and fetch images for them
-            let artistSet = new Set<string | undefined>();
             songPool.forEach((song) => {
-                artistSet.add(song.artistId.Id);
+                if (song.artistId?.Id) {
+                    artistSet = new Set([...artistSet, song.artistId.Id]);
+                }
             });
+
 
             // Wait for all artist image fetches before continuing.
             // TODO (dec 13, 2025): this whole thing is a fucking botchfest pls pls PLS fix it later
@@ -379,8 +383,29 @@
 <svelte:window on:keydown={handleKeyPressed} />
 
 <div class="loadingOverlay" bind:this={overlayEl}>
-    <img src="/logo-fancy.gif" alt="Melodic Decision" height="128" />
-    <p>{loadingText}</p>
+    <div class="artistGrid">
+        {#each artistList as artistId (artistId)}
+            <div class="artistSquare">
+                {#if artistMetadata[artistId]?.artistPhotos?.artistThumbnails?.length}
+                    <img
+                        src={artistMetadata[artistId].artistPhotos.artistThumbnails[0].url}
+                        alt="artist"
+                    />
+                {:else}
+                    <!-- does the entry even exist yet? if not make it a placeholder -->
+                     {#if artistMetadata[artistId]}
+                        <p class="artistFallback">{artistMetadata[artistId].bio.name}</p>
+                     {:else}
+                        <img
+                            src="/logo-transparent.png"
+                            style="opacity: .4"
+                            alt="artist"
+                        />
+                     {/if}
+                {/if}
+            </div>
+        {/each}
+    </div>
 </div>
 
 {#if isDebugVisible}
@@ -482,6 +507,40 @@
         z-index: 10;
         background-color: rgb(50, 0, 0);
         color: var(--text-color);
+    }
+
+    .artistGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+        gap: 12px;
+        width: 85%;
+        max-width: 960px;
+        /* margin-top: 24px; */
+    }
+
+    .artistSquare {
+        aspect-ratio: 1 / 1;
+        background-color: #1a1a1a;
+        border: 2px solid var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .artistSquare img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .artistFallback {
+        font-size: 12px;
+        color: var(--text-color);
+        text-align: center;
+        padding: 2px;
+        word-break: break-word;
     }
 
     .debugOverlay {
