@@ -10,7 +10,7 @@ async function fetchWithRetry(
     } = {}
 ) {
     let attempt = 0;
-    
+
     while (true) {
         const res = await fetch(url, options);
 
@@ -51,7 +51,7 @@ export async function GET({ params }): Promise<void | Response> {
         headers: {
             "User-Agent": "Melodic Decision (https://github.com/FloppiTuna/melodic-decision)"
         }
-    }).then((response) => { return response.json()}).catch((e) => console.error(`Error fetching! ${e}`));
+    }).then((response) => { return response.json() }).catch((e) => console.error(`Error fetching! ${e}`));
 
     if (artistDetails.error) {
         if (artistDetails.error.indexOf("rate limit")) {
@@ -69,7 +69,7 @@ export async function GET({ params }): Promise<void | Response> {
         headers: {
             "User-Agent": "Melodic Decision (https://github.com/FloppiTuna/melodic-decision)"
         }
-    }).then((response) => { return response.json()}).catch((e) => console.error(`Error fetching! ${e}`));
+    }).then((response) => { return response.json() }).catch((e) => console.error(`Error fetching! ${e}`));
     // Search Songfacts for this artist's page (and respective key)
     // TODO: is it safe to just assume every artist's name is the key? example: Tears for Fears = tears-for-fears
     // i would assume not? im not sure; investigate how songfacts handles keying artists
@@ -87,7 +87,7 @@ export async function GET({ params }): Promise<void | Response> {
         .catch(err => console.error(err));
 
 
-        
+
     const _sfSearchPage = load(songfactsSearch);
     const candidates: Record<string, { distance: number, key: string | undefined }> = {}
 
@@ -107,28 +107,36 @@ export async function GET({ params }): Promise<void | Response> {
             key: _sfSearchPage(e).find("a").attr("href")?.replace("/songs/", "") || undefined
         };
     })
-    
+
     const facts: string[] = []
 
     if (!willSkipFacts) {
-        const [key, value] = Object.entries(candidates)
-            .reduce((max, curr) => curr[1] > max[1] ? curr : max);
+        const entries = Object.entries(candidates);
 
-        console.debug(`Picked ${key} (${value.key}) with match of ${value.distance}`)
+        if (entries.length === 0) {
+            console.warn(`No Songfacts candidates found for ${artistDetails.name}`);
+        } else {
+            const [key, value] = entries.reduce((max, curr) =>
+                curr[1].distance > max[1].distance ? curr : max
+            );
 
+            console.debug(`Picked ${key} (${value.key}) with match of ${value.distance}`);
 
-        const artistFactsPage = await fetch(`https://www.songfacts.com/facts/${value.key}`, options)
-            .then(response => response.text())
-            .catch(err => console.error(err))
-        
-        const _sfArtistFacts = load(artistFactsPage)
+            const artistFactsPage = await fetch(
+                `https://www.songfacts.com/facts/${value.key}`,
+                options
+            ).then(r => r.text());
 
+            const _sfArtistFacts = load(artistFactsPage);
 
-        _sfArtistFacts('.artistfacts-results').find("li").toArray().forEach((e, i) => {
-            // skip the first one cuz its just stupid details
-            if (i == 0) return;
-            facts.push(_sfArtistFacts(_sfArtistFacts(e.children)[0]).html() || _sfArtistFacts(e).text())
-        })
+            _sfArtistFacts('.artistfacts-results li').toArray().forEach((e, i) => {
+                if (i === 0) return;
+                facts.push(
+                    _sfArtistFacts(_sfArtistFacts(e.children)[0]).html()
+                    || _sfArtistFacts(e).text()
+                );
+            });
+        }
     }
 
     const response = {
