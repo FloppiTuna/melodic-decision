@@ -25,6 +25,10 @@
     let isDebugVisible = false;
 
     let songPool: MDSongPool = [];
+    let artistMetadata: Record<string, object> = {
+
+    }
+
 
     let artistPhotos: Record<string, object> = {};
 
@@ -131,15 +135,15 @@
         };
 
         // Pick a random artist thumbnail photo...
-        if (artistPhotos[currentSong.artistId.Id].artistthumb) {
+        if (artistMetadata[currentSong.artistId.Id].artistPhotos.artistThumbnails) {
             visiblePhotoMode = "artist";
 
             // pick random artist thumbnail
             const pickedImage =
-                artistPhotos[currentSong.artistId.Id].artistthumb[
+                artistMetadata[currentSong.artistId.Id].artistPhotos.artistThumbnails[
                     Math.floor(
                         Math.random() *
-                            artistPhotos[currentSong.artistId.Id].artistthumb
+                            artistMetadata[currentSong.artistId.Id].artistPhotos.artistThumbnails
                                 .length,
                     )
                 ];
@@ -214,7 +218,7 @@
                                                 element.AlbumArtists[0] || "", // TODO: THIS SUCKSSSS JIUEHWUFGHVWEJHFGEWU do better grr...
                                             album: element.Album,
                                             releaseYear: element.ProductionYear,
-                                            mediaUrl: `/api/music/getSongJellyfin/${element.Id}`,
+                                            mediaUrl: `/api/music/getSongJellyfin/${element.Id}`
                                         });
                                     });
                                 } catch (err) {
@@ -222,6 +226,7 @@
                                         "Error fetching songs from Jellyfin:",
                                         err,
                                     );
+                                    console.log(err)
                                 }
                                 break;
 
@@ -252,7 +257,7 @@
             if (artistIds.length > 0) {
                 await Promise.all(
                     artistIds.map(async (artistId) => {
-                        loadingText = `Fetching images for artist ${artistId}`;
+                        loadingText = `Fetching metadata for artist ${artistId}`;
 
                         try {
                             // first get the musicbrainz id from jellyfin
@@ -274,26 +279,24 @@
                                     );
 
                                     // now fetch images using that musicbrainz id
-                                    const imgRes = await fetch(
-                                        `/api/images/getArtistImages/${mbData.ProviderIds.MusicBrainzArtist}`,
+                                    const metaRequest = await fetch(
+                                        `/api/meta/artist/${mbData.ProviderIds.MusicBrainzArtist}`,
                                     );
-                                    if (imgRes.ok) {
-                                        const imgData = await imgRes.json();
+                                    if (metaRequest.ok) {
+                                        const metadata = await metaRequest.json();
                                         console.log(
-                                            `Received images for MusicBrainz ID ${mbData.ProviderIds.MusicBrainzArtist}:`,
-                                            imgData,
+                                            `Received meta for MusicBrainz ID ${mbData.ProviderIds.MusicBrainzArtist}:`,
+                                            metadata,
                                         );
 
                                         // now match this up with the artist
-                                        artistPhotos[artistId] = imgData;
+                                        artistMetadata[artistId] = metadata;
                                     } else {
                                         console.warn(
-                                            `Failed to fetch images for MusicBrainz ID ${mbData.ProviderIds.MusicBrainzArtist}:`,
-                                            imgRes.statusText,
+                                            `Failed to fetch meta for MusicBrainz ID ${mbData.ProviderIds.MusicBrainzArtist}:`,
+                                            metaRequest.statusText,
                                         );
-                                        artistPhotos[artistId] = {
-                                            artistthumbs: {},
-                                        }; // todo: this is a bit weird...ugh this whople FUNCTION is weird. never trust me at a keyboard ever again
+                                        artistMetadata[artistId] = {}
                                     }
                                 }
                             }
@@ -307,7 +310,7 @@
                 );
             }
 
-            console.log("Final artist meta:", artistPhotos);
+            console.log("Final artist meta:", artistMetadata);
             console.log("Final song pool:", songPool);
 
             overlayEl?.remove();
@@ -323,7 +326,11 @@
             let hasDoneInitialRender = false;
 
             while (true) {
-                 playlistGeneration = [ ...songPool ]; // copy playlist to new generation
+                if (songPool.length == 0) {
+                    console.error("Killing loop to prevent an infinite yield!")
+                    break
+                }
+                playlistGeneration = [ ...songPool ]; // copy playlist to new generation
 
                 while (playlistGeneration.length != 0) {
                     // Pick a random song and set it as the current song
