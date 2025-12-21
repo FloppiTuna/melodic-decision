@@ -157,13 +157,23 @@
         }
 
         // Pick a random did you know fact from the ones in the current pool
-        // TODO: currently just uses the global list, does not fetch any song-specific ones from songfacts or whatever. work on this pls
-        if (data?.didYouKnowGlobal && data.didYouKnowGlobal.length > 0) {
+        // todo: occasionally mix in a global fact maybe
+        if (artistMetadata[currentSong.artistId.Id].facts.length > 0) {
+            const randomIndex = Math.floor(Math.random() * artistMetadata[currentSong.artistId.Id].facts.length);
+            console.debug(
+                `RENDER #${cycles}: selected artist specific fact #${randomIndex} ("${artistMetadata[currentSong.artistId.Id].facts[randomIndex]}")`,
+            );
+
+            visibleDidYouKnowFact = {
+                content: artistMetadata[currentSong.artistId.Id].facts[randomIndex],
+            };
+
+        } else if (data?.didYouKnowGlobal && data.didYouKnowGlobal.length > 0) {
             const randomIndex = Math.floor(
                 Math.random() * data.didYouKnowGlobal.length,
             );
             console.debug(
-                `RENDER #${cycles}: selected DYK fact #${randomIndex} ("${data.didYouKnowGlobal[randomIndex].text}")`,
+                `RENDER #${cycles}: selected global DYK fact #${randomIndex} ("${data.didYouKnowGlobal[randomIndex].text}")`,
             );
 
             visibleDidYouKnowFact = {
@@ -513,7 +523,7 @@
         display: grid;
         grid-template-columns: repeat(
             auto-fit,
-            minmax(clamp(48px, 9vw, 88px), 1fr)
+            minmax(clamp(24px, 9vw, 88px), 1fr)
         );
         gap: 12px;
         width: 85%;
