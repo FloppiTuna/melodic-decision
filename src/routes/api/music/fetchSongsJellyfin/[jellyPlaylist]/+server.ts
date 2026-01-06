@@ -15,6 +15,7 @@ export function GET({ params }): Promise<void | Response> {
     const resp = fetch(`https://jelly.sillyduo.fun/Playlists/${jellyfinPlaylist}/Items?userId=b1172f9f7a884c6795bf546c4c998002`, options)
         .then(response => response.json())
         .then(response => {
+            console.log(response)
             return new Response(JSON.stringify(response), {
                 status: 200,
                 headers: {
