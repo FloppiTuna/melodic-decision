@@ -48,7 +48,22 @@ export const playlists: MDPlaylist[] = [
             {
                 type: "jellyfin",
                 config: {
-                    playlistId: "6d97ce6972d20f92e9b1d95096d71752"
+                    playlistId: "c85928bc10f61e2837dd40a23bad43e8"
+                }
+            }
+        ]
+    }),
+    createPlaylist({
+        name: "SYNTHPOP",
+        displayName: "SYNTHPOP",
+        style: {
+            designVariant: MDDesignVariant.Modern2011
+        },
+        sources: [
+            {
+                type: "jellyfin",
+                config: {
+                    playlistId: "e5b79bc6fbc9f69e3b6f4cc8a057176b"
                 }
             }
         ]

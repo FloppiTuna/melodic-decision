@@ -1,6 +1,5 @@
-<script>
-	// export data if needed
-	export let data;
+<script lang="ts">
+
 </script>
 
 <svelte:head>
@@ -31,10 +30,16 @@
 
 	.aspect {
 		/* enforce 4:3 aspect, scale to fit viewport */
-		aspect-ratio: 4 / 3;
+		aspect-ratio: var(--aspect-width) / var(--aspect-height);
 		/* choose the largest box that fits both width and height */
-		width: min(100vw, calc(100vh * (4 / 3)));
-		height: min(100vh, calc(100vw * (3 / 4)));
+		width: min(
+			100vw,
+			calc(100vh * (var(--aspect-width) / var(--aspect-height)))
+		);
+		height: min(
+			100vh,
+			calc(100vw * (var(--aspect-height) / var(--aspect-width)))
+		);
 		max-width: 100%;
 		max-height: 100%;
 		background: var(--broadcast-stage, #fff); /* content background */
@@ -50,4 +55,3 @@
 		box-sizing: border-box;
 	}
 </style>
-

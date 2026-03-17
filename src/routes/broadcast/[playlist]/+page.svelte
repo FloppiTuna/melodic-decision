@@ -79,6 +79,8 @@
     let playlistGeneration: MDSong[]
     let playlistGenerationCount: number = 0;
 
+    let player: HTMLAudioElement
+
     /*
      * Renders the viewport and increments by one cycle.
      * This will update the photo, did you know, song info, and will also adjust the layout if it is time to do so (determined by cyclesUntil...Switch).
@@ -198,6 +200,19 @@
                 "--primary-color",
                 data.playlist.style.primaryColor[Math.floor(Math.random() * data.playlist.style.primaryColor.length)],
             );
+
+            // also set aspect ratio info
+            document.documentElement.style.setProperty(
+                "--aspect-width",
+                data.playlist.style.aspectRatio?.split(':')[0]
+            )
+            
+            document.documentElement.style.setProperty(
+                "--aspect-height",
+                data.playlist.style.aspectRatio?.split(':')[1]
+            )
+
+            console.log(`Aspect ratio has been adjusted to: ${data.playlist.style.aspectRatio}`)
 
             // Begin the great Conglomeration o' Sources
             // (interate thru every defined source and fetch songs from them)
@@ -339,6 +354,7 @@
 
             let hasDoneInitialRender = false;
 
+
             while (true) {
                 if (songPool.length == 0) {
                     console.error("Killing loop to prevent an infinite yield!")
@@ -352,7 +368,7 @@
                     currentSong = songPool[pickedIndex];
 
                     // Play it!
-                    let player = new Audio(currentSong.mediaUrl);
+                    player = new Audio(currentSong.mediaUrl);
                     player.play();
 
                     // Remove this selection from the playlist generation
@@ -386,6 +402,9 @@
         } else if (event.key == "d") {
             // toggle debug
             isDebugVisible = !isDebugVisible;
+        } else if (event.key == "s") {
+            console.log("skipping song!")
+            player.currentTime = player.duration
         }
     }
 </script>
@@ -415,6 +434,12 @@
                 {/if}
             </div>
         {/each}
+    </div>
+
+    <div class="loadingText">
+        <p>melodic decision</p>
+        <p>the time is: {new Date().toLocaleTimeString()}</p>
+        <p>This station brought to you by: YOUR LOCAL CABLE PROVIDER</p>
     </div>
 </div>
 
@@ -505,6 +530,9 @@
     :root {
         --primary-color: #ff0000;
         --text-color: #a3a3a3;
+
+        --aspect-width: 4;
+		--aspect-height: 3;
     }
 
     .loadingOverlay {
@@ -517,6 +545,12 @@
         z-index: 10;
         background-color: rgb(50, 0, 0);
         color: var(--text-color);
+    }
+
+    .loadingText {
+        margin-top: 24px;
+        text-align: center;
+        font-size: x-large; 
     }
 
     .artistGrid {
@@ -644,6 +678,9 @@
         width: 380px;
         height: 100%;
         overflow: hidden;
+        border-right: #a3a3a3 1px solid;
+        border-left: none;
+
     }
 
     .pictureRow .photo img {
@@ -668,6 +705,16 @@
         font-size: 24px; /* baseline */
         text-transform: uppercase;
         color: var(--primary-color);
+        /* todo: implement hollowed out titles ughhhh */
+        /* background-color: var(--primary-color); */
+    }
+
+    .pictureRow .didYouKnow .title p {
+        margin: 0;
+        display: inline-block;
+        width: 100%;
+        border-top: #808080 1px solid;
+        border-bottom: #808080 1px solid;
     }
 
     .pictureRow .didYouKnow .content {
@@ -678,6 +725,11 @@
 
     .pictureRow.reverse {
         flex-direction: row-reverse;
+    }
+
+    .pictureRow.reverse .photo {
+        border-right: none;
+        border-left: #a3a3a3 1px solid;
     }
 
     /* contains currently playing song (baseline 144px high) */

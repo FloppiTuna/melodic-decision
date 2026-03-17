@@ -2,7 +2,14 @@
 export enum MDDesignVariant {
     // Music Choice's design used from around 2011.
     Modern2011 = "modern2011",
+}
 
+export enum MDBroadcastAspectRatio {
+    // 16:9 aspect ratio (landscape)
+    Aspect16by9 = "16:9",
+
+    // 4:3 aspect ratio (square)
+    Aspect4by3 = "4:3",
 }
 
 // Style definitions for the playlist.
@@ -18,6 +25,9 @@ export type MDStyle = {
 
     // What design variant ("era") to use for this playlist.
     designVariant: MDDesignVariant;
+
+    // The aspect ratio to use for the broadcast. Defaults to 16:9.
+    aspectRatio?: MDBroadcastAspectRatio;
 } 
 
 export type MDSource = {
@@ -96,6 +106,7 @@ export const defaultMDStyle: MDStyle = {
     ],
     designVariant: MDDesignVariant.Modern2011,
     useGlobalDidYouKnowFacts: true,
+    aspectRatio: MDBroadcastAspectRatio.Aspect4by3,
 };
 
 export function createPlaylist(input: Partial<MDPlaylist> & { name: string }): MDPlaylist {
