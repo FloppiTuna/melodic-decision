@@ -24,9 +24,6 @@ export const playlists: MDPlaylist[] = [
     createPlaylist({
         name: "Classic Rock",
         style: {
-            primaryColor: [
-                "#0000FF"
-            ],
             designVariant: MDDesignVariant.Modern2011,
         },
         sources: [
