@@ -73,6 +73,9 @@
     let cyclesUntilHorizontalSwitch = randCyclesBetweenMinutes(1, 5);
     let cyclesUntilVerticalSwitch = randCyclesBetweenMinutes(2, 8);
     let cyclesUntilPrimaryColorSwitch = randCyclesBetweenMinutes(4, 28);
+    
+    let cyclesUntilBarStyleSwitch = randCyclesBetweenMinutes(1, 5) // between bar filled to hollowed out
+
 
     let lastDyk = "";
 
@@ -91,6 +94,7 @@
         cyclesUntilHorizontalSwitch--;
         cyclesUntilVerticalSwitch--;
         cyclesUntilPrimaryColorSwitch--;
+        cyclesUntilBarStyleSwitch--;
 
         // if it's time to do a horizontal switch...
         if (cyclesUntilHorizontalSwitch <= 0) {
@@ -127,6 +131,10 @@
             console.debug(
                 `RENDER #${cycles}: cycled color, now ${newColor}. next change in ${cyclesUntilPrimaryColorSwitch} cycles`,
             )
+        }
+
+        if (cyclesUntilBarStyleSwitch <= 0) {
+            
         }
 
 
@@ -711,8 +719,12 @@
 
     .pictureRow .didYouKnow .title p {
         margin: 0;
+        padding: 0;
         display: inline-block;
         width: 100%;
+        line-height: 1;
+        margin-left: -8px;
+        width: calc(100% + 8px);
         border-top: #808080 1px solid;
         border-bottom: #808080 1px solid;
     }
