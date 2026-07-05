@@ -30,9 +30,9 @@ RUN bun run build
 # copy production dependencies and source code into final image
 FROM base AS release
 # Use dev node_modules so `vite preview` (a devDependency) is available
-COPY --from=install /temp/dev/node_modules node_modules
+COPY --chown=bun:bun --from=install /temp/dev/node_modules node_modules
 # Copy the built output and necessary app files from the prerelease stage
-COPY --from=prerelease /usr/src/app .
+COPY --chown=bun:bun --from=prerelease /usr/src/app .
 
 # run the app
 USER bun
