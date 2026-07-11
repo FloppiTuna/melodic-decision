@@ -30,9 +30,16 @@ export type MDStyle = {
     aspectRatio?: MDBroadcastAspectRatio;
 } 
 
+export enum MDSourceType {
+    // A source that pulls from a local folder on the server.
+    LocalFolder = "localFolder",
+    // A source that pulls from a Jellyfin server.
+    Jellyfin = "jellyfin",
+}
+
 export type MDSource = {
     // The type of source.
-    type: string;
+    type: MDSourceType;
 
     // The source's configuration.
     config?: Record<string, any>;

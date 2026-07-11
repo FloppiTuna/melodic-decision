@@ -1,9 +1,24 @@
 import { boolean, integer, jsonb, pgEnum, pgTable, text, varchar } from "drizzle-orm/pg-core";
-import { MDBroadcastAspectRatio, MDDesignVariant, MDDidYouKnowFactType } from "$lib/types";
+import { MDBroadcastAspectRatio, MDDesignVariant, MDDidYouKnowFactType, MDSourceType } from "$lib/types";
+
+// A media source.
+export const mediaSourceType = pgEnum("md_media_source_type", [
+  MDSourceType.LocalFolder,
+  MDSourceType.Jellyfin
+]);
+export const mediaSource = pgTable("media_source", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  type: mediaSourceType().notNull(),
+  name: varchar({ length: 255 }).notNull(),
+  config: jsonb().$type<Record<string, unknown>>(),
+});
+
+export type MediaSourceRow = typeof mediaSource.$inferSelect;
+
+
 
 // A fact pool is a list of facts that can be rendered in the did you know section of the broadcast. 
 // This can be used to show certain strings across all playlists.
-
 export const factPool = pgTable("fact_pool", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull().unique(),

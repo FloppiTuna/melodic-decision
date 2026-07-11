@@ -31,6 +31,12 @@
                 </li>
 
                 <li>
+                    <a class:active={isActive("/admin/panes/config/sources")} href="/admin/panes/config/sources">
+                        Source Configuration
+                    </a>
+                </li>
+
+                <li>
                     <details open>
                         <summary>
                             <span>Playlists</span>
