@@ -29,6 +29,10 @@
             <tr>
                 <td>{source.type}: {source.name}</td>
                 <td>
+                    <form method="POST" action="?/scan" class="inline-form">
+                        <input type="hidden" name="sourceId" value={source.id} />
+                        <button type="submit">Scan</button>
+                    </form>
                     <button>Edit</button>
                     <button>Delete</button>
                 </td>
@@ -36,7 +40,7 @@
         {/each}
         <tr>
             <td colspan="2">
-                <form method="POST" class="new-source-form">
+                <form method="POST" action="?/create" class="new-source-form">
                     <input type="text" name="name" placeholder="Source Name" required />
                     <select name="type" id="type">
                         <option value={MDSourceType.LocalFolder}>Local Folder</option>
@@ -75,5 +79,10 @@
     .new-source-form input,
     .new-source-form select {
         flex: 1;
+    }
+
+    .inline-form {
+        display: inline-block;
+        margin-right: 8px;
     }
 </style>

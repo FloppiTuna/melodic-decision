@@ -1,6 +1,7 @@
 import { type Actions } from "@sveltejs/kit";
 import { getAllMediaSources, createMediaSource } from "$lib/sources";
 import { MDSourceType } from "$lib/types";
+import { scanSource } from "$lib/scanner";
 
 export async function load({ params }) {
     return {
@@ -11,7 +12,7 @@ export async function load({ params }) {
 
 
 export const actions: Actions = {
-    default: async ({ request }) => {
+    create: async ({ request }) => {
         const formData = await request.formData();
         const type = String(formData.get("type") ?? "").trim() as MDSourceType;
         const name = String(formData.get("name") ?? "").trim();
@@ -25,6 +26,23 @@ export const actions: Actions = {
         }
 
         await createMediaSource(type, name, config ? JSON.parse(config) : {});
+
+        return {
+            success: true
+        };
+    },
+    scan: async ({ request }) => {
+        const formData = await request.formData();
+        const sourceId = Number(formData.get("sourceId"));
+
+        if (!Number.isInteger(sourceId)) {
+            return {
+                success: false,
+                error: "A valid source ID is required"
+            };
+        }
+
+        await scanSource(sourceId);
 
         return {
             success: true

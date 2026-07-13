@@ -15,7 +15,48 @@ export const mediaSource = pgTable("media_source", {
 
 export type MediaSourceRow = typeof mediaSource.$inferSelect;
 
+// A media item.
+// export const mediaItem = pgTable("media_item", {
+//   id: integer().primaryKey().generatedAlwaysAsIdentity(),
+//   sourceId: integer()
+//     .notNull()
+//     .references(() => mediaSource.id, { onDelete: "cascade" }),
+//   title: varchar({ length: 255 }).notNull(),
+//   artist: varchar({ length: 255 }).notNull(),
+// });
 
+// export type MediaItemRow = typeof mediaItem.$inferSelect;
+
+export const artists = pgTable("artists", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull().unique(),
+  musicBrainzId: varchar({ length: 36 }).notNull().unique(),
+});
+
+export type ArtistRow = typeof artists.$inferSelect;
+
+export const albums = pgTable("albums", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  title: varchar({ length: 255 }).notNull(),
+  artistId: integer()
+    .notNull()
+    .references(() => artists.id, { onDelete: "cascade" }),
+  musicBrainzId: varchar({ length: 36 }).notNull().unique(),
+});
+
+export type AlbumRow = typeof albums.$inferSelect;
+
+export const tracks = pgTable("tracks", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  title: varchar({ length: 255 }).notNull(),
+  albumId: integer()
+    .notNull()
+    .references(() => albums.id, { onDelete: "cascade" }),
+  trackNumber: integer().notNull(),
+  musicBrainzId: varchar({ length: 36 }).notNull().unique(),
+});
+
+export type TrackRow = typeof tracks.$inferSelect;
 
 // A fact pool is a list of facts that can be rendered in the did you know section of the broadcast. 
 // This can be used to show certain strings across all playlists.
