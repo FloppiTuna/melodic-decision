@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { glob } from 'glob';
-import { createMediaItem } from './media';
+import { createAlbum, createArtist, createTrack } from './media';
 import { getMediaSourceById } from './sources';
 import { MDSourceType } from './types';
 import type { MediaSourceRow } from './server/db/schema';
@@ -8,10 +8,31 @@ import { parseFile } from 'music-metadata';
 import { MusicBrainzApi } from 'musicbrainz-api';
 
 const mbApi = new MusicBrainzApi({
-    appName: 'melodic-decision', // todo: sync with user-defined branding if i ever do that?
-    appVersion: '0.0.1',
-    appContactInfo: 'mabel@ne',
+    appName: 'melodic-decision',
+    appVersion: '0.1.0',
+    appContactInfo: 'unlabeledmabel@discord',
 });
+
+type TrackManifestEntry = {
+    title: string;
+    musicBrainzId?: string;
+    trackNumber?: number;
+    filePath: string;
+};
+
+type AlbumManifestEntry = {
+    title: string;
+    musicBrainzId?: string;
+    tracks: TrackManifestEntry[];
+};
+
+type ArtistManifestEntry = {
+    name: string;
+    musicBrainzId?: string;
+    albums: AlbumManifestEntry[];
+};
+
+type Manifest = ArtistManifestEntry[];
 
 export async function scanSource(sourceId: number): Promise<void> {
     const source = await getMediaSourceById(sourceId);
@@ -43,16 +64,69 @@ async function scanLocalFolderSource(source: MediaSourceRow): Promise<void> {
 
     console.log(`Found ${files.length} media files in folder ${folderPath}.`);
 
+    const manifest: Manifest = [];
+
     for (const filePath of files) {
         try {
             const metadata = await parseFile(filePath);
-            const title = metadata.common.title || path.basename(filePath);
-            const artist = metadata.common.artist || 'Unknown Artist';
-            console.log(`Processing file: ${filePath}, Title: ${title}, Artist: ${artist}`);
-            await createMediaItem(source.id, title, artist);
+            const artistName = metadata.common.artist || 'Unknown Artist';
+            const albumTitle = metadata.common.album || 'Unknown Album';
+            const trackTitle = metadata.common.title || path.basename(filePath);
+            const trackNumber = metadata.common.track.no;
+
+            let artistEntry = manifest.find(a => a.name === artistName);
+            if (!artistEntry) {
+                artistEntry = { name: artistName, albums: [] };
+                manifest.push(artistEntry);
+            }
+
+            let albumEntry = artistEntry.albums.find(a => a.title === albumTitle);
+            if (!albumEntry) {
+                albumEntry = { title: albumTitle, tracks: [] };
+                artistEntry.albums.push(albumEntry);
+            }
+
+            albumEntry.tracks.push({ title: trackTitle, trackNumber: trackNumber || undefined, filePath });
         } catch (error) {
-            console.error(`Failed to process file ${filePath}:`, error);
+            console.error(`Failed to read metadata for file ${filePath}:`, error);
         }
     }
+
+    // try fetching musicbrainz ids for artists and albums here
+    try {
+        for (const artistEntry of manifest) {
+            const artistSearchResults = await mbApi.search('artist', {
+                query: artistEntry.name,
+                limit: 1
+            });
+
+            artistEntry.musicBrainzId = artistSearchResults.artists[0]?.id;
+
+            for (const albumEntry of artistEntry.albums) {
+                const albumSearchResults = await mbApi.search('release-group', {
+                    query: albumEntry.title,
+                    artist: artistEntry.name,
+                    limit: 1
+                });
+
+                albumEntry.musicBrainzId = albumSearchResults['release-groups'][0]?.id;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to search for artists on MusicBrainz:', error);
+    }
+
+    for (const artistEntry of manifest) {
+        const artist = await createArtist(artistEntry.name, artistEntry.musicBrainzId);
+
+        for (const albumEntry of artistEntry.albums) {
+            const album = await createAlbum(albumEntry.title, artist.id, albumEntry.musicBrainzId);
+            for (const trackEntry of albumEntry.tracks) {
+                await createTrack(trackEntry.title, album.id, trackEntry.filePath, trackEntry.trackNumber, trackEntry.musicBrainzId);
+            }
+        }
+    }
+
+    console.log('Manifest:', JSON.stringify(manifest, null, 2));
 }
 

@@ -30,7 +30,7 @@ export type MediaSourceRow = typeof mediaSource.$inferSelect;
 export const artists = pgTable("artists", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull().unique(),
-  musicBrainzId: varchar({ length: 36 }).notNull().unique(),
+  musicBrainzId: varchar({ length: 36 }).unique(),
 });
 
 export type ArtistRow = typeof artists.$inferSelect;
@@ -41,7 +41,7 @@ export const albums = pgTable("albums", {
   artistId: integer()
     .notNull()
     .references(() => artists.id, { onDelete: "cascade" }),
-  musicBrainzId: varchar({ length: 36 }).notNull().unique(),
+  musicBrainzId: varchar({ length: 36 }).unique(),
 });
 
 export type AlbumRow = typeof albums.$inferSelect;
@@ -52,8 +52,9 @@ export const tracks = pgTable("tracks", {
   albumId: integer()
     .notNull()
     .references(() => albums.id, { onDelete: "cascade" }),
-  trackNumber: integer().notNull(),
-  musicBrainzId: varchar({ length: 36 }).notNull().unique(),
+  trackNumber: integer(),
+  musicBrainzId: varchar({ length: 36 }).unique(),
+  path: text().notNull().unique(),
 });
 
 export type TrackRow = typeof tracks.$inferSelect;
