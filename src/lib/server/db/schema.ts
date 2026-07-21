@@ -78,12 +78,40 @@ export const factPoolFact = pgTable("fact_pool_fact", {
 });
 
 export type FactPoolFactRow = typeof factPoolFact.$inferSelect;
-// export const designVariantEnum = pgEnum("md_design_variant", [MDDesignVariant.Modern2011]);
 
-// export const broadcastAspectRatioEnum = pgEnum("md_broadcast_aspect_ratio", [
-//   MDBroadcastAspectRatio.Aspect16by9,
-//   MDBroadcastAspectRatio.Aspect4by3,
-// ]);
+export const playlists = pgTable("playlists", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull().unique(),
+  displayName: varchar({ length: 255 })
+});
+
+export type PlaylistRow = typeof playlists.$inferSelect;
+
+export const designVariantEnum = pgEnum("md_design_variant", [MDDesignVariant.Modern2011]);
+
+export const broadcastAspectRatioEnum = pgEnum("md_broadcast_aspect_ratio", [
+  MDBroadcastAspectRatio.Aspect16by9,
+  MDBroadcastAspectRatio.Aspect4by3,
+]);
+
+export const playlist_styles = pgTable("playlist_styles", {
+  playlistId: integer().primaryKey().references(() => playlists.id, { onDelete: "cascade" }),
+  aspectRatio: broadcastAspectRatioEnum().notNull().default(MDBroadcastAspectRatio.Aspect4by3),
+});
+
+export type PlaylistStyleRow = typeof playlist_styles.$inferSelect;
+
+export const playlist_queries = pgTable("playlist_queries", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  playlistId: integer()
+    .notNull()
+    .references(() => playlists.id, { onDelete: "cascade" }),
+  query: text().notNull(), // oighruhguhrwj WHY ARE I DOING THIS
+}); // this is kinda fuckin stupid but it works for now leave me alone LEAVE ME A🍅NO I MS ORYR PL🍅🍅STOOP PLEAAA🍅🍅🍅SENOOOOO
+
+export type PlaylistQueryRow = typeof playlist_queries.$inferSelect;
+
+
 
 // export const didYouKnowFactTypeEnum = pgEnum("md_did_you_know_fact_type", [
 //   MDDidYouKnowFactType.Global,
