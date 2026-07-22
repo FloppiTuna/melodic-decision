@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">    
     let { data } = $props();
 
     let loadState = $state("Please wait...");
@@ -9,7 +9,52 @@
         design: "modern2011",
     });
 
+    let playlistGeneration = []; // should these be states idk im bad at frontend siiiigh
+    let playlistGenerationIndex = -1;
+
+    let currentSong = $state(null);
+    let player: HTMLAudioElement;
+
+    console.log(data.evaluatedQueries)
+
+    async function combineEvaluatedQueries(queries) {
+        const combined = [];
+        for (const query of queries) {
+            if (query.rows && query.rows.length > 0) {
+                combined.push(...query.rows);
+            }
+        }
+        return combined;
+    }
+
+    async function playPlaylist() {
+        const combinedPlaylist = await combineEvaluatedQueries(data.evaluatedQueries);
+
+        playlistGeneration = [ ...combinedPlaylist ]; // create a copy of the combined playlist for this generation
+        playlistGenerationIndex++;
+
+        console.log(`Starting playlist playback... generation ${playlistGenerationIndex}, ${playlistGeneration.length} songs.`);
+        while (playlistGeneration.length > 0) {
+            const randomIndex = Math.floor(Math.random() * playlistGeneration.length);
+            const song = playlistGeneration.splice(randomIndex, 1)[0];
+            currentSong = song;
+            
+            if (!song) continue;
+
+            console.log(`Playing song: ${song.title} by ${song.artist}`);
+            const audio = new Audio(`/media/${song.id}`);
+            audio.play();
+
+            await new Promise<void>((resolve) => {
+                audio.onended = () => resolve();
+            });
+        }
+    }
+
     $effect(() => {
+        if (loadState == "READY") return;
+        if (!data?.playlist) return;
+
         if (data?.playlist) {
             loadState = `Applying broadcast style configuration...`;
 
@@ -37,12 +82,13 @@
             }
 
             if (data.evaluatedQueries.length > 0) {
+                loadState = `Creating first playlist generation and starting the broadcast...`;
                 loadState = `READY`;
+                playPlaylist();
             } else {
                 loadState = `Playlist is empty.`;
                 errorState = `The Melodic Decision control server could not locate any content for the playlist: BLAHBLAH. If you are an operator for this network's Melodic Decision channels, please check the playlist configuration and ensure that the playlist has valid queries and content. If you are a viewer, please contact your provider for assistance.`;
             }
-
         } else {
             loadState = `An error has occurred while loading the playlist.`;
             errorState = `The Melodic Decision control server could not locate the playlist: BLAHBLAH. If you are an operator for this network's Melodic Decision channels, please check the playlist configuration and ensure that the playlist exists and is accessible. If you are a viewer, please contact your provider for assistance.`;
@@ -85,13 +131,24 @@
     </div>
 {/if}
 
-{#if loadState === "READY"}
-    {#if broadcastStyle.design === "modern2011"}
-        <p>true broadcasgt here soon yay</p>
+
+
+<div class="broadcast-viewport">
+    {#if loadState === "READY"}
+        {#if broadcastStyle.design === "2011"}
+            <p>true broadcasgt here soon yay</p>
+        {:else if broadcastStyle.design === "1998"}
+
+
+
+
+        {:else}
+            <p>Unknown broadcast design: {broadcastStyle.design}...</p>
+            <p>{data.playlist?.name || "Unknown Playlist"}</p>
+            <p>{currentSong?.title || "Unknown Song"}</p>
+        {/if}
     {/if}
-{/if}
-
-
+</div>
 
 
 
