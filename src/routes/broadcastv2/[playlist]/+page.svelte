@@ -1,4 +1,7 @@
 <script lang="ts">    
+    import Ascii1998 from "$lib/designs/Ascii1998.svelte";
+    import { MDDesignVariant } from "$lib/types";
+
     let { data } = $props();
 
     let loadState = $state("Please wait...");
@@ -12,7 +15,12 @@
     let playlistGeneration = []; // should these be states idk im bad at frontend siiiigh
     let playlistGenerationIndex = -1;
 
-    let currentSong = $state(null);
+    let currentSong = $state({
+        title: "",
+        artist: "",
+        album: "",
+        releaseYear: 1984,
+    });
     let player: HTMLAudioElement;
 
     console.log(data.evaluatedQueries)
@@ -24,6 +32,8 @@
                 combined.push(...query.rows);
             }
         }
+        console.debug(`Combined evaluated queries into a single playlist with ${combined.length} songs.`);
+        console.debug(`Combined playlist:`, combined);
         return combined;
     }
 
@@ -41,7 +51,7 @@
             
             if (!song) continue;
 
-            console.log(`Playing song: ${song.title} by ${song.artist}`);
+            console.log(`Playing song: ${song.title} by ${song.artistName} from album ${song.albumTitle} (${song.releaseYear})`);
             const audio = new Audio(`/media/${song.id}`);
             audio.play();
 
@@ -59,7 +69,7 @@
             loadState = `Applying broadcast style configuration...`;
 
             broadcastStyle.aspectRatio = data.playlistStyle?.aspectRatio || "4:3";
-            broadcastStyle.design = data.playlistStyle?.design || "modern2011";
+            broadcastStyle.design = data.playlistStyle?.designVariant || MDDesignVariant.Modern2011;
 
             if (broadcastStyle.aspectRatio === "16:9") {
                 document.documentElement.style.setProperty(
@@ -134,20 +144,24 @@
 
 
 <div class="broadcast-viewport">
-    {#if loadState === "READY"}
-        {#if broadcastStyle.design === "2011"}
-            <p>true broadcasgt here soon yay</p>
-        {:else if broadcastStyle.design === "1998"}
-
-
-
-
-        {:else}
-            <p>Unknown broadcast design: {broadcastStyle.design}...</p>
-            <p>{data.playlist?.name || "Unknown Playlist"}</p>
-            <p>{currentSong?.title || "Unknown Song"}</p>
+    <svelte:boundary onerror={(e) => {
+        console.error(`Error in broadcast renderer for ${broadcastStyle.design}:`, e);
+        //loadState = `An error has occurred while rendering the broadcast.`;
+        //errorState = `The Melodic Decision control server encountered an error while rendering the broadcast for the playlist: ${data.playlist?.name || "Unknown Playlist"}. If you are an operator for this network's Melodic Decision channels, please check the playlist configuration and ensure that the playlist has valid queries and content. If you are a viewer, please contact your provider for assistance.`;
+    }}>
+        {#if loadState === "READY"}
+            {#if broadcastStyle.design === MDDesignVariant.Modern2011}
+                <p>true broadcast here soon yay</p>
+            {:else if broadcastStyle.design === MDDesignVariant.Ascii1998}
+                <Ascii1998 currentSong={currentSong} playlist={data.playlist} />
+            {:else}
+                <!-- fallback for unknown broadcast designs -->
+                <p>Unknown broadcast design: {broadcastStyle.design}...</p>
+                <p>{data.playlist?.name || "Unknown Playlist"}</p>
+                <p>{currentSong?.title || "Unknown Song"}</p>
+            {/if}
         {/if}
-    {/if}
+    </svelte:boundary>
 </div>
 
 
@@ -299,8 +313,8 @@
         position: absolute;
         inset: 0;
         display: flex;
-        justify-content: center;
-        align-items: center;
+        /* justify-content: center;
+        align-items: center; */
         z-index: 9;
         background-color: #0d0d0d;
         color: white;

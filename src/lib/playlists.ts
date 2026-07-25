@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { db } from "./server/db/client";
-import { playlists, playlist_queries, tracks, type PlaylistRow, type PlaylistQueryRow, type TrackRow, playlist_styles, type PlaylistStyleRow } from "./server/db/schema";
+import { playlists, playlist_queries, tracks, albums, artists, type PlaylistRow, type PlaylistQueryRow, type TrackRow, playlist_styles, type PlaylistStyleRow } from "./server/db/schema";
 
 // export const playlists: MDPlaylist[] = [
 //     createPlaylist({
@@ -90,9 +90,14 @@ export const getPlaylistQueriesByPlaylistId = async (playlistId: number): Promis
     return db.select().from(playlist_queries).where(eq(playlist_queries.playlistId, playlistId));
 }
 
+export type TrackWithExtendedMetadata = TrackRow & {
+    albumTitle: string;
+    artistName: string;
+};
+
 type EvaluatedPlaylistQuery = {
     query: string;
-    rows: TrackRow[];
+    rows: TrackWithExtendedMetadata[];
     error?: string;
 };
 
@@ -102,7 +107,21 @@ export const evaluatePlaylistQueries = async (playlistId: number): Promise<Evalu
 
     for (const query of queries) {
         try {
-            const rows = await db.select().from(tracks).where(sql.raw(query.query));
+            const rows = await db.select({
+                id: tracks.id,
+                title: tracks.title,
+                albumId: tracks.albumId,
+                trackNumber: tracks.trackNumber,
+                musicBrainzId: tracks.musicBrainzId,
+                path: tracks.path,
+
+                albumTitle: albums.title,
+                artistName: artists.name,
+            })
+            .from(tracks)
+            .innerJoin(albums, eq(tracks.albumId, albums.id))
+            .innerJoin(artists, eq(albums.artistId, artists.id))
+            .where(sql.raw(query.query));
             results.push({ query: query.query, rows });
         } catch (error) {
             results.push({

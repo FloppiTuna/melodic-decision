@@ -87,7 +87,7 @@ export const playlists = pgTable("playlists", {
 
 export type PlaylistRow = typeof playlists.$inferSelect;
 
-export const designVariantEnum = pgEnum("md_design_variant", [MDDesignVariant.Modern2011]);
+export const designVariantEnum = pgEnum("md_design_variant", [MDDesignVariant.Modern2011, MDDesignVariant.Ascii1998]);
 
 export const broadcastAspectRatioEnum = pgEnum("md_broadcast_aspect_ratio", [
   MDBroadcastAspectRatio.Aspect16by9,
@@ -97,6 +97,7 @@ export const broadcastAspectRatioEnum = pgEnum("md_broadcast_aspect_ratio", [
 export const playlist_styles = pgTable("playlist_styles", {
   playlistId: integer().primaryKey().references(() => playlists.id, { onDelete: "cascade" }),
   aspectRatio: broadcastAspectRatioEnum().notNull().default(MDBroadcastAspectRatio.Aspect4by3),
+  designVariant: designVariantEnum().notNull().default(MDDesignVariant.Modern2011),
 });
 
 export type PlaylistStyleRow = typeof playlist_styles.$inferSelect;
