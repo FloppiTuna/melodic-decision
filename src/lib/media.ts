@@ -51,16 +51,16 @@ export async function createArtist(name: string, musicBrainzId?: string): Promis
     return result[0];
 }
 
-export async function createAlbum(title: string, artistId: number, musicBrainzId?: string): Promise<AlbumRow> {
+export async function createAlbum(title: string, releaseYear: number, artistId: number, musicBrainzId?: string): Promise<AlbumRow> {
     const existing = await db.select().from(albums).where(and(eq(albums.artistId, artistId), eq(albums.title, title)));
 
     if (existing[0]) {
         const album = existing[0];
 
-        if (!album.musicBrainzId && musicBrainzId) {
+        if (!album.musicBrainzId || !album.releaseYear || musicBrainzId) {
             const updated = await db
                 .update(albums)
-                .set({ musicBrainzId })
+                .set({ musicBrainzId, releaseYear })
                 .where(eq(albums.id, album.id))
                 .returning();
             return updated[0];
@@ -69,7 +69,7 @@ export async function createAlbum(title: string, artistId: number, musicBrainzId
         return album;
     }
 
-    const result = await db.insert(albums).values({ title, artistId, musicBrainzId }).returning();
+    const result = await db.insert(albums).values({ title, releaseYear, artistId, musicBrainzId }).returning();
     return result[0];
 }
 

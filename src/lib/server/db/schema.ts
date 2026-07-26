@@ -1,5 +1,5 @@
 import { boolean, integer, jsonb, pgEnum, pgTable, text, varchar } from "drizzle-orm/pg-core";
-import { MDBroadcastAspectRatio, MDDesignVariant, MDDidYouKnowFactType, MDSourceType } from "$lib/types";
+import { MDBroadcastAspectRatio, MDDesignVariant, MDDidYouKnowFactPoolType, MDSourceType } from "$lib/types";
 
 // A media source.
 export const mediaSourceType = pgEnum("md_media_source_type", [
@@ -38,6 +38,7 @@ export type ArtistRow = typeof artists.$inferSelect;
 export const albums = pgTable("albums", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   title: varchar({ length: 255 }).notNull(),
+  releaseYear: integer().notNull().default(1111),
   artistId: integer()
     .notNull()
     .references(() => artists.id, { onDelete: "cascade" }),
@@ -59,11 +60,17 @@ export const tracks = pgTable("tracks", {
 
 export type TrackRow = typeof tracks.$inferSelect;
 
+export const factPoolType = pgEnum("md_fact_pool_type", [
+  MDDidYouKnowFactPoolType.Global,
+  MDDidYouKnowFactPoolType.ArtistSpecific,
+]);
+
 // A fact pool is a list of facts that can be rendered in the did you know section of the broadcast. 
 // This can be used to show certain strings across all playlists.
 export const factPool = pgTable("fact_pool", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull().unique(),
+  type: factPoolType().notNull().default(MDDidYouKnowFactPoolType.Global),
   description: text(),
 });
 
@@ -97,7 +104,7 @@ export const broadcastAspectRatioEnum = pgEnum("md_broadcast_aspect_ratio", [
 export const playlist_styles = pgTable("playlist_styles", {
   playlistId: integer().primaryKey().references(() => playlists.id, { onDelete: "cascade" }),
   aspectRatio: broadcastAspectRatioEnum().notNull().default(MDBroadcastAspectRatio.Aspect4by3),
-  designVariant: designVariantEnum().notNull().default(MDDesignVariant.Modern2011),
+  designVariant: designVariantEnum().notNull().default(MDDesignVariant.Bold2012),
 });
 
 export type PlaylistStyleRow = typeof playlist_styles.$inferSelect;

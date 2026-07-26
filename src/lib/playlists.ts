@@ -93,6 +93,7 @@ export const getPlaylistQueriesByPlaylistId = async (playlistId: number): Promis
 export type TrackWithExtendedMetadata = TrackRow & {
     albumTitle: string;
     artistName: string;
+    releaseYear: number;
 };
 
 type EvaluatedPlaylistQuery = {
@@ -112,6 +113,7 @@ export const evaluatePlaylistQueries = async (playlistId: number): Promise<Evalu
                 title: tracks.title,
                 albumId: tracks.albumId,
                 trackNumber: tracks.trackNumber,
+                releaseYear: albums.releaseYear,
                 musicBrainzId: tracks.musicBrainzId,
                 path: tracks.path,
 

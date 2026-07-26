@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "./server/db/client";
 import { factPool, factPoolFact, type FactPoolFactRow, type FactPoolRow } from "./server/db/schema";
+import type { MDDidYouKnowFactPoolType } from "./types";
 
 export type FactPool = FactPoolRow & {
     facts: FactPoolFactRow[];
@@ -37,8 +38,8 @@ export async function getAllFactPools(): Promise<FactPool[]> {
     return [...factPools.values()];
 }
 
-export async function createFactPool(name: string, description?: string): Promise<FactPoolRow> {
-    const result = await db.insert(factPool).values({ name, description }).returning();
+export async function createFactPool(name: string, type: MDDidYouKnowFactPoolType, description?: string): Promise<FactPoolRow> {
+    const result = await db.insert(factPool).values({ name, type, description }).returning();
     return result[0];
 }
 

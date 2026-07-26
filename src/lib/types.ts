@@ -86,12 +86,12 @@ export type MDPlaylist = {
     didYouKnowFacts?: MDDidYouKnowFact[];
 }
 
-export enum MDDidYouKnowFactType {
+export enum MDDidYouKnowFactPoolType {
     // A global fact that can be shown on any playlist.
     Global = "global",
 
-    // A playlist-specific fact that should only be shown on a specific playlist.
-    PlaylistSpecific = "playlistSpecific",
+    // An artist-specific fact that can be shown on any playlist that contains a song by the artist.
+    ArtistSpecific = "artistSpecific",
 }
 
 export type MDDidYouKnowFact = {
@@ -99,7 +99,7 @@ export type MDDidYouKnowFact = {
     text: string;
 
     // The fact's type.
-    type: MDDidYouKnowFactType;
+    type: MDDidYouKnowFactPoolType;
 
     // The playlist name this fact is associated with (if type is PlaylistSpecific).
     associatedPlaylist?: string;
