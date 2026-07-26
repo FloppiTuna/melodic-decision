@@ -14,7 +14,6 @@ export async function GET({ params }): Promise<Response> {
     console.log(`Serving track with ID: ${id}`);
 
     // todo: handle other types of media source X_X
-    console.log(track)
     if (track.path) {
         const fileStream = fs.createReadStream(track.path);
         const webStream = Readable.toWeb(fileStream);

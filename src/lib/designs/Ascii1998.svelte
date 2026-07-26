@@ -55,6 +55,8 @@
         line-height: .8;
         letter-spacing: 0.2rem;
         word-spacing: .6rem;
+        padding-left: 48px;
+        padding-right: 48px;
     }
 
     .content p:first-child {

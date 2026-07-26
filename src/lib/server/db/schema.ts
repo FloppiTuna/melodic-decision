@@ -87,7 +87,7 @@ export const playlists = pgTable("playlists", {
 
 export type PlaylistRow = typeof playlists.$inferSelect;
 
-export const designVariantEnum = pgEnum("md_design_variant", [MDDesignVariant.Modern2011, MDDesignVariant.Ascii1998]);
+export const designVariantEnum = pgEnum("md_design_variant", [MDDesignVariant.Bold2012, MDDesignVariant.Ascii1998]);
 
 export const broadcastAspectRatioEnum = pgEnum("md_broadcast_aspect_ratio", [
   MDBroadcastAspectRatio.Aspect16by9,

@@ -1,7 +1,7 @@
 // A Melodic Decision playlist.
 export enum MDDesignVariant {
-    // Music Choice's design used from around 2011.
-    Modern2011 = "modern2011",
+    // Music Choice's Bold design introduced in 2012.
+    Bold2012 = "bold2012",
     // Music Choice's design used from around 1998.
     Ascii1998 = "ascii1998",
 }
