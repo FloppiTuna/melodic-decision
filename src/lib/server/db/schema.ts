@@ -35,6 +35,16 @@ export const artists = pgTable("artists", {
 
 export type ArtistRow = typeof artists.$inferSelect;
 
+export const artist_likeness = pgTable("artist_likeness", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  artistId: integer()
+    .notNull()
+    .references(() => artists.id, { onDelete: "cascade" }),
+  imageUrl: text().notNull(),
+});
+
+export type ArtistLikenessRow = typeof artist_likeness.$inferSelect;
+
 export const albums = pgTable("albums", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   title: varchar({ length: 255 }).notNull(),
