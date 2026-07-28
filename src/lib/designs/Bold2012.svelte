@@ -88,7 +88,7 @@
         if (cyclesUntilAdSwitch <= 0) {
             if (visibleFactMode === "fact") {
                 visibleFactMode = "ad";
-                visibleAd = "This is a sample ad. Buy our product!";
+                visibleAd = "/kids1.png"; // TODO: pick a random ad from the pool
                 cyclesUntilAdSwitch = 1;
             } else {
                 visibleFactMode = "fact";
@@ -233,7 +233,7 @@
                 <img src={visiblePhoto} alt={currentSong.artistName} />
             {/if}
         </div>
-        <div class="dyk-container">
+        <div class="dyk-container" class:ad={visibleFactMode === "ad"}>
             {#if visibleFactMode === "fact"}
                 <div class="dyk-title" class:inverted={barStyle === "inverted"}>
                     <p>DID YOU KNOW?</p>
@@ -242,7 +242,7 @@
                     <p>{@html purify.sanitize(visibleFact, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'] })}</p>
                 </div>
             {:else if visibleFactMode === "ad"}
-                <p>{visibleAd}</p>
+                <img src={visibleAd} alt="Advertisement" />
             {/if}
         </div>
     </div>
@@ -361,7 +361,21 @@
         flex-direction: column;
         overflow: hidden;
         min-width: 0;
+    }
 
+    .picture-row .dyk-container.ad {
+        margin-top: 0px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .picture-row .dyk-container.ad img {
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
+        display: block;
     }
 
     .picture-row .dyk-container .dyk-title  {

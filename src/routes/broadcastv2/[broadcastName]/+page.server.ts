@@ -1,15 +1,44 @@
+import { getBroadcastById, getBroadcastByName, getBroadcastStyleByBroadcastId } from "$lib/broadcast";
 import { getArtistLikenesses } from "$lib/external_sources";
 import { getFactPoolByName } from "$lib/factpools";
 import { getArtistLikenessByArtistId } from "$lib/likeness";
-import { getPlaylistByName, getPlaylistQueriesByPlaylistId, evaluatePlaylistQueries, getPlaylistStyleByPlaylistId } from "$lib/playlists";
+import { getPlaylistByName, getPlaylistQueriesByPlaylistId, evaluatePlaylistQueries, getPlaylistById } from "$lib/playlists";
 
 export async function load({ params }) {
-    const playlist = await getPlaylistByName(params.playlist);
-    const playlistStyle = await getPlaylistStyleByPlaylistId(playlist?.id ?? -1);
+    // load broadcast by broadcastName
+    const broadcastName = params.broadcastName;
+    const broadcast = await getBroadcastByName(broadcastName);
+    console.log("broadcast", broadcast);
+
+    if (!broadcast) {
+        return {
+            broadcast: null,
+            broadcastStyle: null,
+            playlist: null,
+            playlistQueries: [],
+            evaluatedQueries: []
+        };
+    }
+
+    if (!broadcast.associatedPlaylist) {
+        return {
+            broadcast: broadcast,
+            broadcastStyle: null,
+            playlist: null,
+            playlistQueries: [],
+            evaluatedQueries: []
+        };
+    }
+
+    const broadcastStyle = await getBroadcastStyleByBroadcastId(broadcast.id);
+    console.log("broadcastStyle", broadcastStyle);
+    const playlist = await getPlaylistById(broadcast.associatedPlaylist);
+    console.log("playlist", playlist);
 
     if (!playlist) {
         return {
             playlist: null,
+            broadcastStyle: null,
             playlistStyle: null,
             playlistQueries: [],
             evaluatedQueries: []
@@ -18,8 +47,8 @@ export async function load({ params }) {
 
     const playlistQueries = await getPlaylistQueriesByPlaylistId(playlist.id);
     const evaluatedQueries = await evaluatePlaylistQueries(playlist.id);
-    console.log("playlist", playlist);
-    console.log("playlistStyle", playlistStyle);
+    console.log("playlistQueries", playlistQueries);
+    console.log("evaluatedQueries", evaluatedQueries);
 
     // collect all artist facts from their respective fact pools
     const artists = new Set<{ name: string; id: number }>();
@@ -47,9 +76,10 @@ export async function load({ params }) {
     console.log("artistLikenesses", artistLikenesses);
     
     return {
-        name: params.playlist,
+        name: broadcast.name,
+        broadcast: broadcast,
+        broadcastStyle: broadcastStyle,
         playlist: playlist,
-        playlistStyle: playlistStyle,
         playlistQueries: playlistQueries,
         evaluatedQueries: evaluatedQueries,
         artistFacts: artistFacts,

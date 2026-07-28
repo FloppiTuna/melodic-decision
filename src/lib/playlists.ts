@@ -86,6 +86,11 @@ export const getPlaylistByName = async (name: string): Promise<PlaylistRow | und
     return result[0];
 }
 
+export const getPlaylistById = async (id: number): Promise<PlaylistRow | undefined> => {
+    const result = await db.select().from(playlists).where(eq(playlists.id, id));
+    return result[0];
+}
+
 export const getPlaylistQueriesByPlaylistId = async (playlistId: number): Promise<PlaylistQueryRow[]> => {
     return db.select().from(playlist_queries).where(eq(playlist_queries.playlistId, playlistId));
 }
@@ -138,12 +143,6 @@ export const evaluatePlaylistQueries = async (playlistId: number): Promise<Evalu
 
     return results;
 }
-
-export const getPlaylistStyleByPlaylistId = async (playlistId: number): Promise<PlaylistStyleRow | undefined> => {
-    const result = await db.select().from(playlist_styles).where(eq(playlist_styles.playlistId, playlistId));
-    return result[0];
-}
-
 
 export const createPlaylist = async (name: string, displayName?: string): Promise<PlaylistRow> => {
     const result = await db.insert(playlists).values({ name, displayName }).returning();
