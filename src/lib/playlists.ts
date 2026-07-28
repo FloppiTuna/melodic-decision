@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { db } from "./server/db/client";
-import { playlists, playlist_queries, tracks, albums, artists, type PlaylistRow, type PlaylistQueryRow, type TrackRow, playlist_styles, type PlaylistStyleRow } from "./server/db/schema";
+import { playlists, playlist_queries, tracks, albums, artists, type PlaylistRow, type PlaylistQueryRow, type TrackRow } from "./server/db/schema";
 
 // export const playlists: MDPlaylist[] = [
 //     createPlaylist({
@@ -102,7 +102,7 @@ export type TrackWithExtendedMetadata = TrackRow & {
     artistId: number;
 };
 
-type EvaluatedPlaylistQuery = {
+export type EvaluatedPlaylistQuery = {
     query: string;
     rows: TrackWithExtendedMetadata[];
     error?: string;

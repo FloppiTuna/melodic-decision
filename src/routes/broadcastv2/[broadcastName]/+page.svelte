@@ -1,8 +1,9 @@
 <script lang="ts">    
     import Ascii1998 from "$lib/designs/Ascii1998.svelte";
     import Bold2012 from "$lib/designs/Bold2012.svelte";
+    import type { EvaluatedPlaylistQuery } from "$lib/playlists.js";
     import { MDDesignVariant } from "$lib/types";
-
+    
     let { data } = $props();
 
     let loadState = $state("Please wait...");
@@ -18,15 +19,14 @@
 
     let currentSong = $state({
         title: "",
-        artist: "",
-        album: "",
+        artistName: "",
+        albumTitle: "",
         releaseYear: 1984,
     });
+    
     let player: HTMLAudioElement;
 
-    console.log(data.evaluatedQueries);
-
-    async function combineEvaluatedQueries(queries) {
+    async function combineEvaluatedQueries(queries: EvaluatedPlaylistQuery[]) {
         const combined = [];
         for (const query of queries) {
             if (query.rows && query.rows.length > 0) {
@@ -69,8 +69,8 @@
         if (data?.playlist) {
             loadState = `Applying broadcast style configuration...`;
 
-            broadcastStyle.aspectRatio = data.playlistStyle?.aspectRatio || "4:3";
-            broadcastStyle.design = data.playlistStyle?.designVariant || MDDesignVariant.Bold2012;
+            broadcastStyle.aspectRatio = data.broadcastStyle?.aspectRatio || "4:3";
+            broadcastStyle.design = data.broadcastStyle?.designVariant || MDDesignVariant.Bold2012;
 
             if (broadcastStyle.aspectRatio === "16:9") {
                 document.documentElement.style.setProperty(
