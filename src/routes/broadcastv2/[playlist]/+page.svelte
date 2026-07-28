@@ -152,7 +152,7 @@
     }}>
         {#if loadState === "READY"}
             {#if broadcastStyle.design === MDDesignVariant.Bold2012}
-                <Bold2012 currentSong={currentSong} playlist={data.playlist} />
+                <Bold2012 currentSong={currentSong} playlist={data.playlist} artistFacts={data.artistFacts} artistLikenesses={data.artistLikenesses} />
             {:else if broadcastStyle.design === MDDesignVariant.Ascii1998}
                 <Ascii1998 currentSong={currentSong} playlist={data.playlist} />
             {:else}

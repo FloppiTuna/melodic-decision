@@ -129,7 +129,14 @@ export const playlist_queries = pgTable("playlist_queries", {
 
 export type PlaylistQueryRow = typeof playlist_queries.$inferSelect;
 
+export const broadcasts = pgTable("broadcasts", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull().unique(),
+  displayName: varchar({ length: 255 }),
+  associatedPlaylist: integer().references(() => playlists.id, { onDelete: "set null" }),
+});
 
+export type BroadcastRow = typeof broadcasts.$inferSelect;
 
 // export const didYouKnowFactTypeEnum = pgEnum("md_did_you_know_fact_type", [
 //   MDDidYouKnowFactType.Global,

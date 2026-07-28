@@ -71,3 +71,15 @@ export async function getArtistFacts(artistName: string): Promise<string[]> {
 
     return facts;
 }
+
+// todo: its a little silly how getArtistFacts works on the artist name, but getArtistLikenesses works on the musicbrainz id. i should probably make these two functions work on the same identifier
+export async function getArtistLikenesses(artistMusicbrainzId: string): Promise<object[]> {
+    const photos = await fetchWithRetry(`https://webservice.fanart.tv/v3.2/music/${artistMusicbrainzId}?api_key=${process.env.FANART_TV_API_KEY}`, {
+        headers: {
+            "User-Agent": "Melodic Decision (https://github.com/FloppiTuna/melodic-decision)"
+        }
+    }).then((response) => { return response.json() }).catch((e) => console.error(`Error fetching! ${e}`));
+
+    console.log(`Fetched likenesses for artist ${artistMusicbrainzId}:`, photos);
+    return [ ...(photos.artistbackground || []), ...(photos.artistthumb || [])];
+}
