@@ -3,7 +3,7 @@
 
     import { onMount } from "svelte";
 
-    let { currentSong, playlist, artistFacts, artistLikenesses } = $props();
+    let { currentSong, playlist, artistFacts, artistLikenesses, advertisementCampaignsWithMedia } = $props();
     let purify = createDOMPurify(window);
 
     let visiblePhotoMode: "generic" | "artist" = $state("generic");
@@ -86,9 +86,15 @@
 
         // Time for an ad/fact switch?
         if (cyclesUntilAdSwitch <= 0) {
+            console.log(advertisementCampaignsWithMedia);
             if (visibleFactMode === "fact") {
+                const randomAdCampaign = advertisementCampaignsWithMedia[Math.floor(Math.random() * advertisementCampaignsWithMedia.length)];
+                console.log(`Switching to ad mode. Random ad campaign:`, randomAdCampaign);
+                if (randomAdCampaign && randomAdCampaign.media && randomAdCampaign.media.length > 0) {
+                    const randomMedia = randomAdCampaign.media[Math.floor(Math.random() * randomAdCampaign.media.length)];
+                    visibleAd = randomMedia.mediaPath;
+                }
                 visibleFactMode = "ad";
-                visibleAd = "/kids1.png"; // TODO: pick a random ad from the pool
                 cyclesUntilAdSwitch = 1;
             } else {
                 visibleFactMode = "fact";

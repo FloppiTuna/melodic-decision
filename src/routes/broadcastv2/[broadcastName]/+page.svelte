@@ -23,7 +23,7 @@
         albumTitle: "",
         releaseYear: 1984,
     });
-    
+
     let player: HTMLAudioElement;
 
     async function combineEvaluatedQueries(queries: EvaluatedPlaylistQuery[]) {
@@ -152,7 +152,7 @@
     }}>
         {#if loadState === "READY"}
             {#if broadcastStyle.design === MDDesignVariant.Bold2012}
-                <Bold2012 currentSong={currentSong} playlist={data.playlist} artistFacts={data.artistFacts} artistLikenesses={data.artistLikenesses} />
+                <Bold2012 currentSong={currentSong} playlist={data.playlist} artistFacts={data.artistFacts} artistLikenesses={data.artistLikenesses} advertisementCampaignsWithMedia={data.advertisementCampaignsWithMedia} />
             {:else if broadcastStyle.design === MDDesignVariant.Ascii1998}
                 <Ascii1998 currentSong={currentSong} playlist={data.playlist} />
             {:else}

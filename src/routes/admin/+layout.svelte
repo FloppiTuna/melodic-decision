@@ -69,6 +69,34 @@
                 <li>
                     <details open>
                         <summary>
+                            <span>Advertisement Campaigns</span>
+                            <small>{data.advertisementCampaigns.length}</small>
+                        </summary>
+
+                        <ul class="tree-children">
+                            <li>
+                                <a class:active={isActive("/admin/panes/advertising/create")} class="positive" href="/admin/panes/advertising/create">
+                                    Create New Advertisement Campaign
+                                </a>
+                            </li>
+
+                            {#each data.advertisementCampaigns as advertisementCampaign}
+                                <li>
+                                    <a
+                                        class:active={page.url.pathname === `/admin/panes/advertising/view/${encodeURIComponent(advertisementCampaign.name)}`}
+                                        href={`/admin/panes/advertising/view/${encodeURIComponent(advertisementCampaign.name)}`}
+                                    >
+                                        {advertisementCampaign.displayName || advertisementCampaign.name}
+                                    </a>
+                                </li>
+                            {/each}
+                        </ul>
+                    </details>
+                </li>
+
+                <li>
+                    <details open>
+                        <summary>
                             <span>Playlists</span>
                             <small>{data.playlists.length}</small>
                         </summary>

@@ -138,6 +138,24 @@ export const broadcasts = pgTable("broadcasts", {
 
 export type BroadcastRow = typeof broadcasts.$inferSelect;
 
+export const advertisement_campaigns = pgTable("advertisement_campaigns", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull().unique(),
+  displayName: varchar({ length: 255 }),
+});
+
+export type AdvertisementCampaignRow = typeof advertisement_campaigns.$inferSelect;
+
+export const advertisement_campaign_media = pgTable("advertisement_campaign_media", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull(),
+  campaignId: integer().notNull().references(() => advertisement_campaigns.id, { onDelete: "cascade" }),
+  mediaPath: varchar({ length: 255 }).notNull(),
+});
+
+export type AdvertisementCampaignMediaRow = typeof advertisement_campaign_media.$inferSelect;
+
+
 // export const didYouKnowFactTypeEnum = pgEnum("md_did_you_know_fact_type", [
 //   MDDidYouKnowFactType.Global,
 //   MDDidYouKnowFactType.PlaylistSpecific,

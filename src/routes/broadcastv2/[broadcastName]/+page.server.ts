@@ -1,3 +1,4 @@
+import { getAdvertisementCampaignMediaByCampaignId, getAllAdvertisementCampaigns } from "$lib/ad_campaigns";
 import { getBroadcastById, getBroadcastByName, getBroadcastStyleByBroadcastId } from "$lib/broadcast";
 import { getArtistLikenesses } from "$lib/external_sources";
 import { getFactPoolByName } from "$lib/factpools";
@@ -75,6 +76,16 @@ export async function load({ params }) {
     console.log("artistFacts", artistFacts);
     console.log("artistLikenesses", artistLikenesses);
     
+    // eventually we'll only get ad campaigns enabled for a broadcast, but for now we'll just get all ad campaigns lol
+    const advertisementCampaigns = await getAllAdvertisementCampaigns();
+    const advertisementCampaignsWithMedia = await Promise.all(advertisementCampaigns.map(async (campaign) => {
+        const media = await getAdvertisementCampaignMediaByCampaignId(campaign.id);
+        return {
+            ...campaign,
+            media: media
+        };
+    }));
+    console.log("advertisementCampaignsWithMedia", advertisementCampaignsWithMedia);
     return {
         name: broadcast.name,
         broadcast: broadcast,
@@ -83,6 +94,7 @@ export async function load({ params }) {
         playlistQueries: playlistQueries,
         evaluatedQueries: evaluatedQueries,
         artistFacts: artistFacts,
-        artistLikenesses: artistLikenesses
+        artistLikenesses: artistLikenesses,
+        advertisementCampaignsWithMedia: advertisementCampaignsWithMedia
     };
 }
