@@ -39,6 +39,36 @@
                 <li>
                     <details open>
                         <summary>
+                            <span>Broadcasts</span>
+                            <small>{data.broadcasts.length}</small>
+                        </summary>
+
+                        <ul class="tree-children">
+                            <li>
+                                <a class:active={isActive("/admin/panes/broadcast/create")} class="positive" href="/admin/panes/broadcast/create">
+                                    Create New Broadcast
+                                </a>
+                            </li>
+
+                            {#each data.broadcasts as broadcast}
+                                <li>
+                                    <a
+                                        class:active={page.url.pathname === `/admin/panes/broadcast/view/${encodeURIComponent(broadcast.name)}`}
+                                        href={`/admin/panes/broadcast/view/${encodeURIComponent(broadcast.name)}`}
+                                    >
+                                        {broadcast.displayName || broadcast.name}
+                                    </a>
+                                </li>
+                            {/each}
+                        </ul>
+                    </details>
+                </li>
+
+
+
+                <li>
+                    <details open>
+                        <summary>
                             <span>Playlists</span>
                             <small>{data.playlists.length}</small>
                         </summary>
