@@ -98,6 +98,15 @@
                 cyclesUntilAdSwitch = 1;
             } else {
                 visibleFactMode = "fact";
+                // pick a random fact (TODO: respect attached pools or wtever)
+                const facts = artistFacts[currentSong.artistName] || [];
+                if (facts.length > 0) {
+                    const randomFact = facts[Math.floor(Math.random() * facts.length)];
+                    visibleFact = randomFact;
+                    visibleFactMode = "fact";
+                } else {
+                    visibleFact = "You're listening to Melodic Decision";
+                }
                 cyclesUntilAdSwitch = randCyclesBetweenMinutes(1, 5);
             }
         }
@@ -110,15 +119,7 @@
             releaseYear: currentSong.releaseYear,
         };
 
-        // pick a random fact (TODO: respect attached pools or wtever)
-        const facts = artistFacts[currentSong.artistName] || [];
-        if (facts.length > 0) {
-            const randomFact = facts[Math.floor(Math.random() * facts.length)];
-            visibleFact = randomFact;
-            visibleFactMode = "fact";
-        } else {
-            visibleFact = "Fact unavailable.";
-        }
+
 
         // pick a random likeness
         console.log(`artistLikenesses:`, artistLikenesses);
