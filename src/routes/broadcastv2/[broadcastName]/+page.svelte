@@ -54,7 +54,13 @@
 
             console.log(`Playing song: ${song.title} by ${song.artistName} from album ${song.albumTitle} (${song.releaseYear})`);
             const audio = new Audio(`/media/${song.id}`);
-            audio.play();
+
+            try {
+                await audio.play();
+            } catch (error) {
+                console.error(`Error playing song ${song.title}:`, error); //todo: error reporting somehow idk
+                continue; // skip to the next song
+            }
 
             await new Promise<void>((resolve) => {
                 audio.onended = () => resolve();
