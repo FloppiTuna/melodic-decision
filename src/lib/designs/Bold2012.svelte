@@ -98,17 +98,18 @@
                 cyclesUntilAdSwitch = 1;
             } else {
                 visibleFactMode = "fact";
-                // pick a random fact (TODO: respect attached pools or wtever)
-                const facts = artistFacts[currentSong.artistName] || [];
-                if (facts.length > 0) {
-                    const randomFact = facts[Math.floor(Math.random() * facts.length)];
-                    visibleFact = randomFact;
-                    visibleFactMode = "fact";
-                } else {
-                    visibleFact = "You're listening to Melodic Decision";
-                }
                 cyclesUntilAdSwitch = randCyclesBetweenMinutes(1, 5);
             }
+        }
+
+        // pick a random fact (TODO: respect attached pools or wtever)
+        // uhh i kinda just moved this here for now cuz of the ad switching thing is htere a btter way ti do this siigh
+        const facts = artistFacts[currentSong.artistName] || [];
+        if (facts.length > 0) {
+            const randomFact = facts[Math.floor(Math.random() * facts.length)];
+            visibleFact = randomFact;
+        } else {
+            visibleFact = "You're listening to Melodic Decision";
         }
 
         // update visible song information for this cycle
