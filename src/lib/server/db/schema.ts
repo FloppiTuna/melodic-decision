@@ -155,6 +155,14 @@ export const advertisement_campaign_media = pgTable("advertisement_campaign_medi
 
 export type AdvertisementCampaignMediaRow = typeof advertisement_campaign_media.$inferSelect;
 
+export const settings = pgTable("settings", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  key: varchar({ length: 255 }).notNull().unique(),
+  value: text().notNull(),
+  changedAt: integer().notNull().default(Math.floor(Date.now() / 1000)),
+});
+
+export type SettingsRow = typeof settings.$inferSelect;
 
 // export const didYouKnowFactTypeEnum = pgEnum("md_did_you_know_fact_type", [
 //   MDDidYouKnowFactType.Global,
