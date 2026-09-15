@@ -70,9 +70,15 @@
 
     $effect(() => {
         if (loadState == "READY") return;
-        if (!data?.playlist) return;
+        if (!data) return;
 
-        if (data?.playlist) {
+        try {
+            if (!data.playlist) {
+                loadState = `An error has occurred while loading the playlist.`;
+                errorState = `The Melodic Decision control server could not locate the playlist: ${data.broadcast?.name || "Unknown Broadcast"}. If you are an operator for this network's Melodic Decision channels, please check the broadcast configuration and ensure that it has an associated playlist. If you are a viewer, please contact your provider for assistance.`;
+                return;
+            }
+
             loadState = `Applying broadcast style configuration...`;
 
             broadcastStyle.aspectRatio = data.broadcastStyle?.aspectRatio || "4:3";
@@ -99,16 +105,37 @@
             }
 
             if (data.evaluatedQueries.length > 0) {
-                loadState = `Creating first playlist generation and starting the broadcast...`;
+                loadState = `Preloading assets...`;
+
+                // // get EVERY artist likeness applicable to the artists in this playlist and preload them by creating Image objects for each likeness
+                // const artistLikenesses = data.artistLikenesses || [];
+                // Object.entries(artistLikenesses).forEach(async ([artistName, likenesses]) => {
+                //     likenesses.forEach(async (likeness) => {
+                //         await new Promise<void>((resolve) => {
+                //             console.debug(`Preloading artist likeness for ${artistName}:`, likeness);
+                //             loadState = `Preloading artist likeness for ${artistName}...`;
+                //             const img = new Image();
+                //             img.src = likeness;
+                //             img.onload = () => resolve();
+                //             img.onerror = () => {
+                //                 console.error(`Error preloading artist likeness for ${artistName}:`, likeness);
+                //                 resolve(); // resolve even on error to avoid blocking
+                //             };
+                //         });
+                //     });
+                // });
+
+
                 loadState = `READY`;
                 playPlaylist();
             } else {
                 loadState = `Playlist is empty.`;
                 errorState = `The Melodic Decision control server could not locate any content for the playlist: BLAHBLAH. If you are an operator for this network's Melodic Decision channels, please check the playlist configuration and ensure that the playlist has valid queries and content. If you are a viewer, please contact your provider for assistance.`;
             }
-        } else {
+        } catch (error) {
+            console.error("Error while loading broadcast:", error);
             loadState = `An error has occurred while loading the playlist.`;
-            errorState = `The Melodic Decision control server could not locate the playlist: BLAHBLAH. If you are an operator for this network's Melodic Decision channels, please check the playlist configuration and ensure that the playlist exists and is accessible. If you are a viewer, please contact your provider for assistance.`;
+            errorState = `The Melodic Decision control server encountered an error while loading the broadcast. Please contact your provider for assistance.`;
         }
     });
 </script>

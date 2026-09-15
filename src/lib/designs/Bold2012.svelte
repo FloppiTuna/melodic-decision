@@ -139,6 +139,9 @@
         const interval = setInterval(render, CYCLE_SECONDS * 1000);
         return () => clearInterval(interval);
     });
+    
+    // initial render
+    setTimeout(render, 1000); // wait a second to let the song info load before rendering
 
     let debugOpen = $state(false);
     function handleSpecialKey(event: KeyboardEvent) {

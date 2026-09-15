@@ -22,7 +22,7 @@ export async function GET({ params }): Promise<Response> {
         return new Response(webStream, {
             status: 200,
             headers: {
-                'Content-Type': track.mimeType,
+                // 'Content-Type': track.mimeType,
                 'Content-Disposition': `inline; filename="${filename}"`,
             }
         });
