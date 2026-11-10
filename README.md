@@ -10,7 +10,7 @@ Melodic Decision is a replica of the [Music Choice](https://en.wikipedia.org/wik
 ![A Jazz playlist on Melodic Decision, showing a photo of the band GoGo Penguin, with an advertisement for Homestuck in the "did you know" section](/docs/media/screenshots/preview_screenshot_4.png)
 
 # Installation
-# Using Docker (recommended)
+## Using Docker (recommended)
 Use the following Docker Compose configuration:
 
 ```yaml
