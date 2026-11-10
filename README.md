@@ -1,38 +1,19 @@
-# sv
+# Melodic Decision
+![Melodic decision logo](static/logo-transparent.png)
+Melodic Decision is a replica of the [Music Choice](https://en.wikipedia.org/wiki/Music_Choice) cable TV channel.
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+# Screenshots
 
-## Creating a project
 
-If you're seeing this, you've probably already done this step. Congrats!
 
-```sh
-# create a new project in the current directory
-npx sv create
+# Supported Designs
+## Ascii1998
+Based off of this [VCR recording of Music Choice](https://www.youtube.com/watch?v=socQ175pYQg), taken in 1998. It's currently unknown when this design was truly released, and in what capacity.
+## Bold2012
+Based off of the [Music Choice's "Bold New Look"](https://www.youtube.com/watch?v=UaG491KlhXY), released in 2012. This particular design was one of the longest running ones, used up until Music Choice's [November 2021 redesign](https://www.instagram.com/musicchoice/p/CWEd3rZPsJV/?img_index=1).
 
-# create a new project in my-app
-npx sv create my-app
-```
 
-## Developing
+# Credits
+Of course, big thanks to Music Choice, for making a damn good 24/7 music channel to have fond memories of seeing on the TV at my grandma's house. =P
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+Thank you to [@Cat6a-debug](https://github.com/Cat6a-debug) for making the Melodic Decision logo.
