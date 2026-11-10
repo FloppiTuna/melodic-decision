@@ -1,5 +1,6 @@
 # Melodic Decision
 ![Melodic decision logo](static/logo-transparent.png)
+
 Melodic Decision is a replica of the [Music Choice](https://en.wikipedia.org/wiki/Music_Choice) cable TV channel.
 
 # Screenshots
