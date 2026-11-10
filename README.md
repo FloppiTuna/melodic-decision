@@ -4,7 +4,26 @@
 Melodic Decision is a replica of the [Music Choice](https://en.wikipedia.org/wiki/Music_Choice) cable TV channel.
 
 # Screenshots
+![A Jazz playlist on Melodic Decision, showing a photo of the band Hiroshima, with "You're listening to Melodic Decision" in the "did you know" section](/docs/media/screenshots/preview_screenshot_1.png)
+![A Jazz playlist on Melodic Decision, showing a photo of Kenny G, and a fact about him in the "did you know" section.](/docs/media/screenshots/preview_screenshot_2.png)
+![A Jazz playlist on Melodic Decision, showing a photo of the band GoGo Penguin, with "You're listening to Melodic Decision" in the "did you know" section](/docs/media/screenshots/preview_screenshot_3.png)
+![A Jazz playlist on Melodic Decision, showing a photo of the band GoGo Penguin, with an advertisement for Homestuck in the "did you know" section](/docs/media/screenshots/preview_screenshot_4.png)
 
+# Installation
+# Using Docker (recommended)
+Use the following Docker Compose configuration:
+
+```yaml
+todo lol
+```
+
+# Configuration
+> [!IMPORTANT]
+> **Melodic Decision does not come with any audio material whatsoever.** You are responsible for sourcing the music you wish to play.
+
+# "Broadcasting"
+> [!CAUTION]
+> **Do not livestream or broadcast music you do not have the rights to transmit.** Melodic Decision is not responsible for any legal fees incurred, or copyright mafia bosses encountered.
 
 
 # Supported Designs
