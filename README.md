@@ -4,10 +4,27 @@
 Melodic Decision is a replica of the [Music Choice](https://en.wikipedia.org/wiki/Music_Choice) cable TV channel.
 
 # Screenshots
-![A Jazz playlist on Melodic Decision, showing a photo of the band Hiroshima, with "You're listening to Melodic Decision" in the "did you know" section](/docs/media/screenshots/preview_screenshot_1.png)
-![A Jazz playlist on Melodic Decision, showing a photo of Kenny G, and a fact about him in the "did you know" section.](/docs/media/screenshots/preview_screenshot_2.png)
-![A Jazz playlist on Melodic Decision, showing a photo of the band GoGo Penguin, with "You're listening to Melodic Decision" in the "did you know" section](/docs/media/screenshots/preview_screenshot_3.png)
-![A Jazz playlist on Melodic Decision, showing a photo of the band GoGo Penguin, with an advertisement for Homestuck in the "did you know" section](/docs/media/screenshots/preview_screenshot_4.png)
+<table>
+  <tr>
+    <td><img src="docs/media/screenshots/preview_screenshot_1.png" alt="A Jazz playlist featuring Hiroshima" width="320"></td>
+    <td><img src="docs/media/screenshots/preview_screenshot_2.png" alt="A Jazz playlist featuring Kenny G" width="320"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Hiroshima</sub></td>
+    <td align="center"><sub>Kenny G</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/media/screenshots/preview_screenshot_3.png" alt="A Jazz playlist featuring GoGo Penguin" width="320"></td>
+    <td><img src="docs/media/screenshots/preview_screenshot_4.png" alt="A Jazz playlist featuring GoGo Penguin and a Homestuck advertisement" width="320"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>GoGo Penguin</sub></td>
+    <td align="center"><sub>GoGo Penguin with an advertisement</sub></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><img src="docs/media/screenshots/preview_screenshot_5.png" alt="A Melodic Decision Jazz playlist" width="320"></td>
+  </tr>
+</table>
 
 # Installation
 ## Using Docker (recommended)
@@ -143,7 +160,6 @@ Based off of this [VCR recording of Music Choice](https://www.youtube.com/watch?
 
 ## Bold2012
 Based off of the [Music Choice's "Bold New Look"](https://www.youtube.com/watch?v=UaG491KlhXY), released in 2012. This particular design was one of the longest running ones, used up until Music Choice's [November 2021 redesign](https://www.instagram.com/musicchoice/p/CWEd3rZPsJV/?img_index=1).
-![A Jazz playlist on Melodic Decision, showing a photo of the band Hiroshima, with "You're listening to Melodic Decision" in the "did you know" section](/docs/media/screenshots/preview_screenshot_1.png)
 
 # Contributions
 Contributions to this project are very welcome! Please feel free to send in issues if you have problems or feature requests, or pull requests if you'd like to contribute! =D
