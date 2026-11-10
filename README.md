@@ -10,19 +10,22 @@ Melodic Decision is a replica of the [Music Choice](https://en.wikipedia.org/wik
     <td><img src="docs/media/screenshots/preview_screenshot_2.png" alt="A Jazz playlist featuring Kenny G" width="320"></td>
   </tr>
   <tr>
-    <td align="center"><sub>Hiroshima</sub></td>
-    <td align="center"><sub>Kenny G</sub></td>
+    <td align="center"><sub>Bold2012</sub></td>
+    <td align="center"><sub>Bold2012 with real fact data</sub></td>
   </tr>
   <tr>
     <td><img src="docs/media/screenshots/preview_screenshot_3.png" alt="A Jazz playlist featuring GoGo Penguin" width="320"></td>
     <td><img src="docs/media/screenshots/preview_screenshot_4.png" alt="A Jazz playlist featuring GoGo Penguin and a Homestuck advertisement" width="320"></td>
   </tr>
   <tr>
-    <td align="center"><sub>GoGo Penguin</sub></td>
-    <td align="center"><sub>GoGo Penguin with an advertisement</sub></td>
+    <td align="center"><sub>Bold2012</sub></td>
+    <td align="center"><sub>Bold2012 with color cycling + adverts</sub></td>
   </tr>
   <tr>
-    <td colspan="2" align="center"><img src="docs/media/screenshots/preview_screenshot_5.png" alt="A Melodic Decision Jazz playlist" width="320"></td>
+    <td><img src="docs/media/screenshots/ascii1998_preview.png" alt="A jazz playlist featuring Hiroshima in the Ascii1998 design" width="320"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Ascii1998 <i>(incomplete)</i></sub></td>
   </tr>
 </table>
 
@@ -107,8 +110,9 @@ Some more examples:
 ## Creating a Broadcast
 Broadcasts are the actual "channels" that Melodic Decision will provide. To create one, click **Create New Broadcast** in the sidebar. Make sure you associate it with the playlist you wish to pull music from.
 
-> [!NOTE]
-> **Playlists and Broadcasts seperate?**
+*todo: config*
+
+Once you have configured the settings for this broadcast to your liking, you are now ready to test it out! Go to `http://DOCKER_HOST_IP:3000/broadcastv2/BROADCAST_NAME`, and it should start playing.
 
 # Broadcasting
 > [!CAUTION]
