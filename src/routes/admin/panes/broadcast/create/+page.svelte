@@ -1,5 +1,5 @@
 <script>
-    let { form } = $props();
+    let { data, form } = $props();
 
     let name = $state("");
     let displayName = $state("");
@@ -25,7 +25,14 @@
         <input bind:value={displayName} type="text" id="displayName" name="displayName" placeholder="Enter a display name for the broadcast" />
 
         <label for="associatedPlaylist">Associated Playlist</label>
-        <input bind:value={associatedPlaylist} type="number" id="associatedPlaylist" name="associatedPlaylist" placeholder="Enter the ID of the associated playlist" />
+        <!-- <input bind:value={associatedPlaylist} type="number" id="associatedPlaylist" name="associatedPlaylist" placeholder="Enter the ID of the associated playlist" /> -->
+        <select bind:value={associatedPlaylist} id="associatedPlaylist" name="associatedPlaylist" required>
+            <option value="" disabled selected>Select a playlist</option>
+            {#each data?.playlists as playlist}
+                <option value={playlist.id}>{playlist.displayName} ({playlist.name}, #{playlist.id})</option>
+            {/each}
+        </select>
+        
         <button type="submit">Create Broadcast</button>
     </form>
 

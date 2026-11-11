@@ -113,7 +113,7 @@ export const defaultMDStyle: MDStyle = {
         "#FFE500",
         "#15D991"
     ],
-    designVariant: MDDesignVariant.Modern2011,
+    designVariant: MDDesignVariant.Bold2012,
     useGlobalDidYouKnowFacts: true,
     aspectRatio: MDBroadcastAspectRatio.Aspect4by3,
 };

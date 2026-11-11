@@ -115,6 +115,7 @@ export const broadcast_styles = pgTable("broadcast_styles", {
   broadcastId: integer().primaryKey().references(() => broadcasts.id, { onDelete: "cascade" }),
   aspectRatio: broadcastAspectRatioEnum().notNull().default(MDBroadcastAspectRatio.Aspect4by3),
   designVariant: broadcastDesignVariantEnum().notNull().default(MDDesignVariant.Bold2012),
+  designOptions: jsonb().default({}).$type<Record<string, boolean | string | number>>(),
 });
 
 export type BroadcastStyleRow = typeof broadcast_styles.$inferSelect;

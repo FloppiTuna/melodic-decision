@@ -37,3 +37,20 @@ export async function getBroadcastStyleByBroadcastId(broadcastId: number): Promi
     const result = await db.select().from(broadcast_styles).where(eq(broadcast_styles.broadcastId, broadcastId));
     return result[0];
 }
+
+export async function createOrUpdateBroadcastStyle(broadcastId: number, styleData: Partial<BroadcastStyleRow>): Promise<BroadcastStyleRow> {
+    const existingStyle = await getBroadcastStyleByBroadcastId(broadcastId);
+
+    if (existingStyle) {
+        const result = await db.update(broadcast_styles)
+            .set(styleData)
+            .where(eq(broadcast_styles.broadcastId, broadcastId))
+            .returning();
+        return result[0];
+    } else {
+        const result = await db.insert(broadcast_styles)
+            .values({ broadcastId, ...styleData })
+            .returning();
+        return result[0];
+    }
+}

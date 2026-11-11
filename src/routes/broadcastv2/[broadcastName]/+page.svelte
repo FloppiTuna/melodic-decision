@@ -12,6 +12,7 @@
     let broadcastStyle = $state({
         aspectRatio: "4:3",
         design: "modern2011",
+        designOptions: {} as Record<string, boolean | string | number>,
     });
 
     let playlistGeneration = []; // should these be states idk im bad at frontend siiiigh
@@ -83,6 +84,7 @@
 
             broadcastStyle.aspectRatio = data.broadcastStyle?.aspectRatio || "4:3";
             broadcastStyle.design = data.broadcastStyle?.designVariant || MDDesignVariant.Bold2012;
+            broadcastStyle.designOptions = data.broadcastStyle?.designOptions || {};
 
             if (broadcastStyle.aspectRatio === "16:9") {
                 document.documentElement.style.setProperty(
@@ -187,7 +189,7 @@
             {#if broadcastStyle.design === MDDesignVariant.Bold2012}
                 <Bold2012 currentSong={currentSong} playlist={data.playlist} artistFacts={data.artistFacts} artistLikenesses={data.artistLikenesses} advertisementCampaignsWithMedia={data.advertisementCampaignsWithMedia} />
             {:else if broadcastStyle.design === MDDesignVariant.Ascii1998}
-                <Ascii1998 currentSong={currentSong} playlist={data.playlist} />
+                <Ascii1998 currentSong={currentSong} playlist={data.playlist} designOptions={broadcastStyle.designOptions} />
             {:else}
                 <!-- fallback for unknown broadcast designs -->
                 <p>Unknown broadcast design: {broadcastStyle.design}...</p>

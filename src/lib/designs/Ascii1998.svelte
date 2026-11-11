@@ -1,5 +1,6 @@
-<script>
-    let { currentSong, playlist } = $props();
+<script lang="ts">
+    let { currentSong, playlist, designOptions = {} } = $props();
+    let appendExtraSpaceToSongName = $derived(designOptions["append-extra-space-to-song-name"] !== false);
 </script>
 
 <div class="ascii1998-root">
@@ -25,7 +26,7 @@
     </div>
 
     <div class="content">
-        <p>"{currentSong.title?.toUpperCase() || "NOT AVAILABLE"} "</p>
+        <p>"{currentSong.title?.toUpperCase() || "NOT AVAILABLE"}{appendExtraSpaceToSongName ? " " : ""}"</p>
         <p>By: {currentSong.artistName?.toUpperCase() || "NOT AVAILABLE"}</p>
         <p>CD: {currentSong.albumTitle?.toUpperCase() || "NOT AVAILABLE"}</p>
         <p>On: {currentSong.id}</p>

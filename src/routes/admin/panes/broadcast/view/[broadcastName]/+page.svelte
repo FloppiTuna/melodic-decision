@@ -1,7 +1,22 @@
 <script lang="ts">
-    let { data } = $props();
+    import { MDDesignVariant } from "$lib/types";
+    import type { MDDesignMetadata } from "$lib/designs";
+
+    let { data, form } = $props();
 
     let activeTab = $state("overview");
+    let selectedVariant = $state(data.broadcastStyle?.designVariant ?? MDDesignVariant.Bold2012);
+
+    function metadataFor(variant: string): MDDesignMetadata | undefined {
+        return data.designMetadata[variant as keyof typeof data.designMetadata] as MDDesignMetadata | undefined;
+    }
+
+    function optionValue(option: { id: string; defaultValue?: boolean | string | number }) {
+        return data.broadcastStyle?.designOptions?.[option.id] ?? option.defaultValue ?? "";
+    }
+
+
+
 </script>
 
 <div>
@@ -29,6 +44,56 @@
             <p>Playlist content goes here.</p>
         {:else if activeTab === "style"}
             <p>Current style: {data.broadcastStyle?.designVariant}</p> 
+            <p>Change the style of the broadcast:</p>
+            <form method="POST" action="?/updateStyle">
+                <select name="designVariant" bind:value={selectedVariant}>
+                    {#each Object.entries(data.designMetadata) as [variant, metadata]}
+                        <option value={variant}>
+                            {metadata.name}
+                        </option>
+                    {/each}
+                </select>
+                {#each metadataFor(selectedVariant)?.options ?? [] as section}
+                    <fieldset>
+                        <legend>{section.name}</legend>
+                        <p>{section.description}</p>
+                        {#each section.options as option}
+                            <div>
+                                <label for={option.id}>{option.name}</label>
+                                <p>{option.description}</p>
+                                {#if option.type === "boolean"}
+                                    <input
+                                        id={option.id}
+                                        type="checkbox"
+                                        name={`option:${option.id}`}
+                                        checked={optionValue(option) === true}
+                                    />
+                                {:else if option.type === "select"}
+                                    <select id={option.id} name={`option:${option.id}`}>
+                                        {#each option.options ?? [] as value}
+                                            <option value={value} selected={optionValue(option) === value}>{value}</option>
+                                        {/each}
+                                    </select>
+                                {:else}
+                                    <input
+                                        id={option.id}
+                                        type={option.type}
+                                        name={`option:${option.id}`}
+                                        value={String(optionValue(option))}
+                                    />
+                                {/if}
+                            </div>
+                        {/each}
+                    </fieldset>
+                {/each}
+                <button type="submit">Save style</button>
+            </form>
+            {#if form?.success}
+                <p>Style updated.</p>
+            {:else if form?.error}
+                <p>{form.error}</p>
+            {/if}
+            <p>Note: selecting a new style will discard the configuration of the current style.</p>
         {:else if activeTab === "advertising"}
             <p>Enable campaigns here.</p>
         {:else if activeTab === "live"}
