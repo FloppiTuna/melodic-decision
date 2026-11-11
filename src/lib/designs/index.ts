@@ -76,6 +76,91 @@ export const designMetadata = {
 			supportsDidYouKnowFacts: true,
 			supportsAdvertisements: true,
 		},
+        options: [
+            {
+                name: "Cycles",
+                description: "Cycle configuration.",
+                options: [
+                    {
+                        type: "number",
+                        id: "cycle-duration",
+                        name: "Cycle duration",
+                        description: "The duration of a cycle, in seconds.",
+                        defaultValue: 30,
+                    },
+                    {
+                        type: "number",
+                        id: "minimum-cycles-until-horizontal-switch",
+                        name: "Minimum cycles until horizontal switch",
+                        description: "The minimum number of cycles before switching the horizontal layout.",
+                        defaultValue: 1,
+                    },
+                    {
+                        type: "number",
+                        id: "maximum-cycles-until-horizontal-switch",
+                        name: "Maximum cycles until horizontal switch",
+                        description: "The maximum number of cycles before switching the horizontal layout.",
+                        defaultValue: 5,
+                    },
+                    {
+                        type: "number",
+                        id: "minimum-cycles-until-vertical-switch",
+                        name: "Minimum cycles until vertical switch",
+                        description: "The minimum number of cycles before switching the vertical layout.",
+                        defaultValue: 2,
+                    },
+                    {
+                        type: "number",
+                        id: "maximum-cycles-until-vertical-switch",
+                        name: "Maximum cycles until vertical switch",
+                        description: "The maximum number of cycles before switching the vertical layout.",
+                        defaultValue: 8,
+                    },
+                    {
+                        type: "number",
+                        id: "minimum-cycles-until-primary-color-switch",
+                        name: "Minimum cycles until primary color switch",
+                        description: "The minimum number of cycles before switching the primary color.",
+                        defaultValue: 4,
+                    },
+                    {
+                        type: "number",
+                        id: "maximum-cycles-until-primary-color-switch",
+                        name: "Maximum cycles until primary color switch",
+                        description: "The maximum number of cycles before switching the primary color.",
+                        defaultValue: 28,
+                    },
+                    {
+                        type: "number",
+                        id: "minimum-cycles-until-bar-style-switch",
+                        name: "Minimum cycles until bar style switch",
+                        description: "The minimum number of cycles before switching the bar style. (solid to outline)",
+                        defaultValue: 1,
+                    },
+                    {
+                        type: "number",
+                        id: "maximum-cycles-until-bar-style-switch",
+                        name: "Maximum cycles until bar style switch",
+                        description: "The maximum number of cycles before switching the bar style. (solid to outline)",
+                        defaultValue: 5,
+                    },
+                    {
+                        type: "number",
+                        id: "minimum-cycles-until-advertisement-switch",
+                        name: "Minimum cycles until advertisement switch",
+                        description: "The minimum number of cycles before showing an advertisement for one cycle.",
+                        defaultValue: 1,
+                    },
+                    {
+                        type: "number",
+                        id: "maximum-cycles-until-advertisement-switch",
+                        name: "Maximum cycles until advertisement switch",
+                        description: "The maximum number of cycles before showing an advertisement for one cycle.",
+                        defaultValue: 5,
+                    }
+                ]
+            }
+        ]
 	},
 } satisfies Record<MDDesignVariant, MDDesignMetadata>;
 

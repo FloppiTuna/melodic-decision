@@ -53,12 +53,15 @@
                         </option>
                     {/each}
                 </select>
+                {#if !metadataFor(selectedVariant)?.options }
+                    <p>No options can be configured for the selected style.</p>
+                {/if}
                 {#each metadataFor(selectedVariant)?.options ?? [] as section}
-                    <fieldset>
+                    <fieldset class="option-section">
                         <legend>{section.name}</legend>
-                        <p>{section.description}</p>
+                        <p class="description">{section.description}</p>
                         {#each section.options as option}
-                            <div>
+                            <div class="option">
                                 <label for={option.id}>{option.name}</label>
                                 <p>{option.description}</p>
                                 {#if option.type === "boolean"}
@@ -121,5 +124,31 @@
         font-weight: bold;
     }
 
+    .option-section {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+
+    .option-section legend {
+        font-weight: bold;
+    }
+
+    .option-section .description {
+        font-size: 0.9em;
+        color: #666;
+    }
+
+    .option-section .option {
+        margin-top: 10px;
+    }
     
+    .option-section .option label {
+        display: block;
+        font-weight: bold;
+    }
+    .option-section .option p {
+        font-size: 0.9em;
+        color: #666;
+    }
 </style>

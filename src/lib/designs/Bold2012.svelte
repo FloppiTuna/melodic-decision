@@ -3,7 +3,7 @@
 
     import { onMount } from "svelte";
 
-    let { currentSong, playlist, artistFacts, artistLikenesses, advertisementCampaignsWithMedia } = $props();
+    let { currentSong, playlist, artistFacts, artistLikenesses, advertisementCampaignsWithMedia, designOptions = {} } = $props();
     let purify = createDOMPurify(window);
 
     let visiblePhotoMode: "generic" | "artist" = $state("generic");
@@ -34,13 +34,13 @@
         return Math.ceil(seconds / CYCLE_SECONDS);
     }
     
-    let cyclesUntilHorizontalSwitch = $state(randCyclesBetweenMinutes(1, 5));
-    let cyclesUntilVerticalSwitch = $state(randCyclesBetweenMinutes(2, 8));
-    let cyclesUntilPrimaryColorSwitch = $state(randCyclesBetweenMinutes(4, 28));
+    let cyclesUntilHorizontalSwitch = $state(0);
+    let cyclesUntilVerticalSwitch = $state(0);
+    let cyclesUntilPrimaryColorSwitch = $state(0);
     
-    let cyclesUntilBarStyleSwitch = $state(randCyclesBetweenMinutes(1, 5)); // inversion status
+    let cyclesUntilBarStyleSwitch = $state(0); // inversion status
 
-    let cyclesUntilAdSwitch = $state(randCyclesBetweenMinutes(1, 5)); // ad/fact status
+    let cyclesUntilAdSwitch = $state(0); // ad/fact status
     function render() {
         cycles++;
         cyclesUntilHorizontalSwitch--;
@@ -136,6 +136,27 @@
     }
 
     onMount(() => {
+        console.log(`designOptions:`, designOptions);
+        cyclesUntilHorizontalSwitch = randCyclesBetweenMinutes(
+            designOptions["minimum-cycles-until-horizontal-switch"] || 1,
+            designOptions["maximum-cycles-until-horizontal-switch"] || 5
+        );
+        cyclesUntilVerticalSwitch = randCyclesBetweenMinutes(
+            designOptions["minimum-cycles-until-vertical-switch"] || 2,
+            designOptions["maximum-cycles-until-vertical-switch"] || 8
+        );
+        cyclesUntilPrimaryColorSwitch = randCyclesBetweenMinutes(
+            designOptions["minimum-cycles-until-primary-color-switch"] || 4,
+            designOptions["maximum-cycles-until-primary-color-switch"] || 28
+        );
+        cyclesUntilBarStyleSwitch = randCyclesBetweenMinutes(
+            designOptions["minimum-cycles-until-bar-style-switch"] || 1,
+            designOptions["maximum-cycles-until-bar-style-switch"] || 5
+        );
+        cyclesUntilAdSwitch = randCyclesBetweenMinutes(
+            designOptions["minimum-cycles-until-advertisement-switch"] || 1,
+            designOptions["maximum-cycles-until-advertisement-switch"] || 5
+        );
         const interval = setInterval(render, CYCLE_SECONDS * 1000);
         return () => clearInterval(interval);
     });
