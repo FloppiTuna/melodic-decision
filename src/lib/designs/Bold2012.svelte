@@ -10,14 +10,14 @@
     let visiblePhoto = $state("/generic.png");
 
     let visibleFactMode: "ad" | "fact" = $state("fact");
-    let visibleFact = $state("<i>FACT TEXT</i> <b>FACT TEXT</b> <u>FACT TEXT</u> <a href='https://example.com'>FACT TEXT</a>");
+    let visibleFact = $state("You're listening to Melodic Decision");
     let visibleAd = $state("");
     
     let visibleSongInfo = $state({
-        title: "",
-        artist: "",
-        album: "",
-        releaseYear: 0,
+        title: "I Believe In A Thing Called Love",
+        artist: "The Darkness",
+        album: "Permission to Land",
+        releaseYear: 2003,
     });
 
     let verticalLayout = $state("picture-detail"); // from top to bottom
