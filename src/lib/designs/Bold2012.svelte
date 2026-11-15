@@ -3,7 +3,7 @@
 
     import { onMount } from "svelte";
 
-    let { currentSong, playlist, artistFacts, artistLikenesses, advertisementCampaignsWithMedia, designOptions = {} } = $props();
+    let { currentSong, playlist, artistFacts, artistLikenesses, advertisementCampaignsWithMedia, designOptions = {}, onDebugInfoChange = () => {} } = $props();
     let purify = createDOMPurify(window);
 
     let visiblePhotoMode: "generic" | "artist" = $state("generic");
@@ -133,6 +133,24 @@
             visiblePhoto = "/generic.png";
             visiblePhotoMode = "generic";
         }
+
+        onDebugInfoChange({
+            visiblePhotoMode,
+            visiblePhoto,
+            visibleFactMode,
+            visibleFact,
+            visibleAd,
+            visibleSongInfo,
+            verticalLayout,
+            horizontalLayout,
+            barStyle,
+            cycles,
+            cyclesUntilHorizontalSwitch,
+            cyclesUntilVerticalSwitch,
+            cyclesUntilPrimaryColorSwitch,
+            cyclesUntilBarStyleSwitch,
+            cyclesUntilAdSwitch,
+        });
     }
 
     onMount(() => {
@@ -166,97 +184,7 @@
     // initial render
     setTimeout(render, 1000); // wait a second to let the song info load before rendering
 
-    let debugOpen = $state(false);
-    function handleSpecialKey(event: KeyboardEvent) {
-        if (event.key === "r") {
-            render();
-        } else if (event.key === "d") {
-            debugOpen = !debugOpen;
-        }
-    }
-
 </script>
-
-<svelte:window on:keydown={handleSpecialKey} />
-
-<div class="debug-panel" class:open={debugOpen}>
-    <p>Bold2012 debugging panel - press d to close</p>
-    <p>layout info</p>
-    <table>
-        <tbody>
-            <tr>
-                <td>Current song (visible):</td>
-                <td>{visibleSongInfo.title} by {visibleSongInfo.artist} from {visibleSongInfo.album} ({visibleSongInfo.releaseYear})</td>
-            </tr>
-            <tr>
-                <td>Current song (actual):</td>
-                <td>{currentSong.title} by {currentSong.artistName} from {currentSong.albumTitle} ({currentSong.releaseYear})</td>
-            </tr>
-            <tr>
-                <td>Visible photo mode:</td>
-                <td>{visiblePhotoMode}</td>
-            </tr>
-            <tr>
-                <td>Visible photo:</td>
-                <td>{visiblePhoto}</td>
-            </tr>
-            <tr>
-                <td>Visible fact mode:</td>
-                <td>{visibleFactMode}</td>
-            </tr>
-            <tr>
-                <td>Visible fact:</td>
-                <td>{@html purify.sanitize(visibleFact, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'] })}</td>
-            </tr>
-            <tr>
-                <td>Visible ad:</td>
-                <td>{visibleAd}</td>
-            </tr>
-            <tr>
-                <td>Vertical layout:</td>
-                <td>{verticalLayout}</td>
-            </tr>
-            <tr>
-                <td>Horizontal layout:</td>
-                <td>{horizontalLayout}</td>
-            </tr>
-            <tr>
-                <td>Bar style:</td>
-                <td>{barStyle}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <p>cycle info</p>
-    <table>
-        <tbody>
-            <tr>
-                <td>Cycles:</td>
-                <td>{cycles}, {cycles * CYCLE_SECONDS} seconds </td>
-            </tr>
-            <tr>
-                <td>Cycles to horiz switch:</td>
-                <td>{cyclesUntilHorizontalSwitch}, {cyclesUntilHorizontalSwitch * CYCLE_SECONDS} seconds</td>
-            </tr>
-            <tr>
-                <td>Cycles to vert switch:</td>
-                <td>{cyclesUntilVerticalSwitch}, {cyclesUntilVerticalSwitch * CYCLE_SECONDS} seconds</td>
-            </tr>
-            <tr>
-                <td>Cycles to color switch:</td>
-                <td>{cyclesUntilPrimaryColorSwitch}, {cyclesUntilPrimaryColorSwitch * CYCLE_SECONDS} seconds</td>
-            </tr>
-            <tr>
-                <td>Cycles to bar switch:</td>
-                <td>{cyclesUntilBarStyleSwitch}, {cyclesUntilBarStyleSwitch * CYCLE_SECONDS} seconds</td>
-            </tr>
-            <tr>
-                <td>Cycles to ad/fact switch:</td>
-                <td>{cyclesUntilAdSwitch}, {cyclesUntilAdSwitch * CYCLE_SECONDS} seconds, switch to {visibleFactMode === "fact" ? "ad" : "fact"}</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
 
 <div class="bold2012-root" class:reverse={verticalLayout === "detail-picture"}>
     <div class="picture-row" class:reverse={horizontalLayout === "dyk-picture"}>
@@ -305,26 +233,6 @@
         --primary-color: #00D9FD;
         --text-color: #a3a3a3;
     }
-
-    .debug-panel {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.8);
-        color: white;
-        display: none;
-        flex-direction: column;
-        z-index: 1000;
-        padding: 16px;
-    }
-
-    .debug-panel.open {
-        display: flex;
-    }
-
-
 
     .bold2012-root {
         width: 100%;

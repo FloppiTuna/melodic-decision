@@ -4,7 +4,8 @@
     import Fullscreen2021 from "$lib/designs/Fullscreen2021.svelte";
     import type { EvaluatedPlaylistQuery } from "$lib/playlists.js";
     import { MDDesignVariant } from "$lib/types";
-    
+    import { onDestroy } from "svelte";
+
     let { data } = $props();
 
     let loadState = $state("Please wait...");
@@ -20,13 +21,20 @@
     let playlistGenerationIndex = -1;
 
     let currentSong = $state({
-        title: "",
-        artistName: "",
-        albumTitle: "",
+        title: "Loading...",
+        artistName: "Loading...",
+        albumTitle: "Loading...",
         releaseYear: 1984,
     });
 
     let player: HTMLAudioElement;
+    let resolveCurrentSong: (() => void) | undefined;
+
+    let debugMode = $state(false);
+    let designDebugInfo = $state<Record<string, unknown>>({});
+
+    let playbackStarted = false;
+    let playbackCancelled = false;
 
     async function combineEvaluatedQueries(queries: EvaluatedPlaylistQuery[]) {
         const combined = [];
@@ -47,7 +55,7 @@
         playlistGenerationIndex++;
 
         console.log(`Starting playlist playback... generation ${playlistGenerationIndex}, ${playlistGeneration.length} songs.`);
-        while (playlistGeneration.length > 0) {
+        while (!playbackCancelled && playlistGeneration.length > 0) {
             const randomIndex = Math.floor(Math.random() * playlistGeneration.length);
             const song = playlistGeneration.splice(randomIndex, 1)[0];
             currentSong = song;
@@ -55,19 +63,34 @@
             if (!song) continue;
 
             console.log(`Playing song: ${song.title} by ${song.artistName} from album ${song.albumTitle} (${song.releaseYear})`);
-            const audio = new Audio(`/media/${song.id}`);
+            player = new Audio(`/media/${song.id}`);
 
             try {
-                await audio.play();
+                await player.play();
             } catch (error) {
                 console.error(`Error playing song ${song.title}:`, error); //todo: error reporting somehow idk
                 continue; // skip to the next song
             }
 
             await new Promise<void>((resolve) => {
-                audio.onended = () => resolve();
+                resolveCurrentSong = resolve;
+                console.log(`Waiting for song to finish: ${song.title}`);
+                player.onended = () => { 
+                    resolveCurrentSong = undefined;
+                    console.log(`Song ended: ${song.title}`);
+                    resolve(); 
+                };
             });
+
+            if (playbackCancelled) return;
         }
+    }
+
+    async function startPlaybackOnce() {
+        if (playbackStarted) return;
+
+        playbackStarted = true;
+        await playPlaylist();
     }
 
     $effect(() => {
@@ -130,7 +153,7 @@
 
 
                 loadState = `READY`;
-                playPlaylist();
+                startPlaybackOnce();
             } else {
                 loadState = `Playlist is empty.`;
                 errorState = `The Melodic Decision control server could not locate any content for the playlist: BLAHBLAH. If you are an operator for this network's Melodic Decision channels, please check the playlist configuration and ensure that the playlist has valid queries and content. If you are a viewer, please contact your provider for assistance.`;
@@ -141,7 +164,38 @@
             errorState = `The Melodic Decision control server encountered an error while loading the broadcast. Please contact your provider for assistance.`;
         }
     });
+
+    function handleSpecialKey(event: KeyboardEvent) {
+        if (event.key === "s") {
+            console.log("SKIP");
+            player?.pause();
+            resolveCurrentSong?.();
+            resolveCurrentSong = undefined;
+        } else if (event.key === "d") {
+            debugMode = !debugMode;
+        }
+    }
+
+    onDestroy(() => {
+        playbackCancelled = true;
+        player?.pause();
+        player?.removeAttribute("src");
+        player?.load();
+        resolveCurrentSong?.();
+        resolveCurrentSong = undefined;
+    });
 </script>
+
+<svelte:window onkeydown={(e) => handleSpecialKey(e)} />
+
+{#if debugMode}
+    <div class="debug-overlay">
+        <pre>current song: {JSON.stringify(currentSong, null, 2)}</pre>
+        <pre>in playlist generation {playlistGenerationIndex}, with {playlistGeneration.length} songs remaining</pre>
+        <pre>{broadcastStyle.design} renderer state: {JSON.stringify(designDebugInfo, null, 2)}</pre>
+        <pre>{broadcastStyle.design} configuration: {JSON.stringify(broadcastStyle.designOptions, null, 2)}</pre>
+    </div>
+{/if}
 
 {#if loadState !== "READY"}
     <div class="loadingOverlay">
@@ -188,7 +242,7 @@
     }}>
         {#if loadState === "READY"}
             {#if broadcastStyle.design === MDDesignVariant.Bold2012}
-                <Bold2012 currentSong={currentSong} playlist={data.playlist} artistFacts={data.artistFacts} artistLikenesses={data.artistLikenesses} advertisementCampaignsWithMedia={data.advertisementCampaignsWithMedia} designOptions={broadcastStyle.designOptions} />
+                <Bold2012 currentSong={currentSong} playlist={data.playlist} artistFacts={data.artistFacts} artistLikenesses={data.artistLikenesses} advertisementCampaignsWithMedia={data.advertisementCampaignsWithMedia} designOptions={broadcastStyle.designOptions} onDebugInfoChange={(info) => designDebugInfo = info} />
             {:else if broadcastStyle.design === MDDesignVariant.Ascii1998}
                 <Ascii1998 currentSong={currentSong} playlist={data.playlist} designOptions={broadcastStyle.designOptions} />
             {:else if broadcastStyle.design === MDDesignVariant.Fullscreen2021}
@@ -208,6 +262,16 @@
     :root {
         --aspect-width: 4;
         --aspect-height: 3;
+    }
+
+    .debug-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 16px;
+        z-index: 1000;
     }
 
     .loadingOverlay {
