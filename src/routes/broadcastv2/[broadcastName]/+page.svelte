@@ -27,8 +27,9 @@
         releaseYear: 1984,
     });
 
-    let player: HTMLAudioElement;
+    let player: HTMLAudioElement = $state(null);
     let resolveCurrentSong: (() => void) | undefined;
+    let playbackPaused = $state(false);
 
     let debugMode = $state(false);
     let designDebugInfo = $state<Record<string, unknown>>({});
@@ -64,6 +65,8 @@
 
             console.log(`Playing song: ${song.title} by ${song.artistName} from album ${song.albumTitle} (${song.releaseYear})`);
             player = new Audio(`/media/${song.id}`);
+            player.onplay = () => playbackPaused = false;
+            player.onpause = () => playbackPaused = true;
 
             try {
                 await player.play();
@@ -76,6 +79,7 @@
                 resolveCurrentSong = resolve;
                 console.log(`Waiting for song to finish: ${song.title}`);
                 player.onended = () => { 
+                    playbackPaused = false;
                     resolveCurrentSong = undefined;
                     console.log(`Song ended: ${song.title}`);
                     resolve(); 
@@ -169,6 +173,7 @@
         if (event.key === "s") {
             console.log("SKIP");
             player?.pause();
+            playbackPaused = true;
             resolveCurrentSong?.();
             resolveCurrentSong = undefined;
         } else if (event.key === "d") {
@@ -187,6 +192,12 @@
 </script>
 
 <svelte:window onkeydown={(e) => handleSpecialKey(e)} />
+
+{#if playbackPaused}
+    <div class="alert-overlay">
+        <p>PLAYBACK PAUSED</p>
+    </div>
+{/if}
 
 {#if debugMode}
     <div class="debug-overlay">
@@ -271,6 +282,21 @@
         background-color: rgba(0, 0, 0, 0.7);
         color: #fff;
         padding: 16px;
+        z-index: 1000;
+    }
+
+    .alert-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 0, 0, 0.7);
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem;
         z-index: 1000;
     }
 
