@@ -87,7 +87,7 @@
 
         await Promise.all([...imageUrls].map((url) => preloadImage(url, () => {
             preloadProgress.loaded += 1;
-            loadState = `Preloading images (${preloadProgress.loaded}/${preloadProgress.total})...`;
+            loadState = `Preloading image ${url}: (${preloadProgress.loaded}/${preloadProgress.total})...`;
         })));
     }
 
