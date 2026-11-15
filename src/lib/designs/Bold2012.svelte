@@ -5,6 +5,13 @@
 
     let { currentSong, playlist, artistFacts, artistLikenesses, advertisementCampaignsWithMedia, designOptions = {}, onDebugInfoChange = () => {} } = $props();
     let purify = createDOMPurify(window);
+    const artistImageUrls = [...new Set(Object.values(artistLikenesses || {}).flat())];
+    const advertisementImageUrls = [...new Set(
+        // im lazy leave me alone
+        (advertisementCampaignsWithMedia || []).flatMap((campaign: {media: any[]}) =>
+            (campaign.media || []).map((media: {mediaPath: string}) => media.mediaPath)
+        )
+    )];
 
     let visiblePhotoMode: "generic" | "artist" = $state("generic");
     let visiblePhoto = $state("/generic.png");
@@ -189,11 +196,10 @@
 <div class="bold2012-root" class:reverse={verticalLayout === "detail-picture"}>
     <div class="picture-row" class:reverse={horizontalLayout === "dyk-picture"}>
         <div class="picture-container">
-            {#if visiblePhotoMode === "generic"}
-                <img src={visiblePhoto} alt="Melodic Decision logo" />
-            {:else if visiblePhotoMode === "artist"}
-                <img src={visiblePhoto} alt={currentSong.artistName} />
-            {/if}
+            <img class="preloaded-image" class:visible={visiblePhoto === "/generic.png"} src="/generic.png" alt="Melodic Decision logo" loading="eager" />
+            {#each artistImageUrls as imageUrl}
+                <img class="preloaded-image" class:visible={visiblePhoto === imageUrl} src={imageUrl} alt={currentSong.artistName} loading="eager" />
+            {/each}
         </div>
         <div class="dyk-container" class:ad={visibleFactMode === "ad"}>
             {#if visibleFactMode === "fact"}
@@ -204,7 +210,9 @@
                     <p>{@html purify.sanitize(visibleFact, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'] })}</p>
                 </div>
             {:else if visibleFactMode === "ad"}
-                <img src={visibleAd} alt="Advertisement" />
+                {#each advertisementImageUrls as imageUrl}
+                    <img class="preloaded-image" class:visible={visibleAd === imageUrl} src={imageUrl} alt="Advertisement" loading="eager" />
+                {/each}
             {/if}
         </div>
     </div>
@@ -275,6 +283,14 @@
         object-fit: cover;
         object-position: center;
         display: block;
+    }
+
+    .preloaded-image {
+        display: none !important;
+    }
+
+    .preloaded-image.visible {
+        display: block !important;
     }
 
     .picture-row.reverse {

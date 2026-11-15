@@ -10,6 +10,7 @@
 
     let loadState = $state("Please wait...");
     let errorState = $state("");
+    let preloadProgress = $state({ loaded: 0, total: 0 });
 
     let broadcastStyle = $state({
         aspectRatio: "4:3",
@@ -36,6 +37,59 @@
 
     let playbackStarted = false;
     let playbackCancelled = false;
+    let loadingStarted = false;
+
+    function preloadImage(url: string, onComplete: () => void) {
+        return new Promise<void>((resolve) => {
+            const image = new Image();
+            let completed = false;
+            const complete = () => {
+                if (completed) return;
+                completed = true;
+                onComplete();
+                resolve();
+            };
+
+            image.onload = complete;
+            image.onerror = () => {
+                console.error(`Error preloading image: ${url}`);
+                complete();
+            };
+            image.src = url;
+
+            // Cached images may already be complete before the handlers run.
+            if (image.complete) complete();
+        });
+    }
+
+    async function preloadImages() {
+        const imageUrls = new Set<string>([
+            "/generic.png",
+            "/logo-transparent.png",
+            "/logo.png",
+            "/loader_bg.png",
+        ]);
+
+        for (const likenesses of Object.values(data.artistLikenesses || {})) {
+            for (const likeness of likenesses || []) {
+                if (likeness) imageUrls.add(likeness);
+            }
+        }
+
+        for (const campaign of data.advertisementCampaignsWithMedia || []) {
+            for (const media of campaign.media || []) {
+                if (media.mediaPath) imageUrls.add(media.mediaPath);
+            }
+        }
+
+        preloadProgress = { loaded: 0, total: imageUrls.size };
+        loadState = `Preloading images (0/${imageUrls.size})...`;
+
+        await Promise.all([...imageUrls].map((url) => preloadImage(url, () => {
+            preloadProgress.loaded += 1;
+            loadState = `Preloading images (${preloadProgress.loaded}/${preloadProgress.total})...`;
+        })));
+    }
 
     async function combineEvaluatedQueries(queries: EvaluatedPlaylistQuery[]) {
         const combined = [];
@@ -98,10 +152,12 @@
     }
 
     $effect(() => {
-        if (loadState == "READY") return;
+        if (loadingStarted || loadState == "READY") return;
         if (!data) return;
+        loadingStarted = true;
 
-        try {
+        void (async () => {
+            try {
             if (!data.playlist) {
                 loadState = `An error has occurred while loading the playlist.`;
                 errorState = `The Melodic Decision control server could not locate the playlist: ${data.broadcast?.name || "Unknown Broadcast"}. If you are an operator for this network's Melodic Decision channels, please check the broadcast configuration and ensure that it has an associated playlist. If you are a viewer, please contact your provider for assistance.`;
@@ -135,38 +191,19 @@
             }
 
             if (data.evaluatedQueries.length > 0) {
-                loadState = `Preloading assets...`;
-
-                // // get EVERY artist likeness applicable to the artists in this playlist and preload them by creating Image objects for each likeness
-                // const artistLikenesses = data.artistLikenesses || [];
-                // Object.entries(artistLikenesses).forEach(async ([artistName, likenesses]) => {
-                //     likenesses.forEach(async (likeness) => {
-                //         await new Promise<void>((resolve) => {
-                //             console.debug(`Preloading artist likeness for ${artistName}:`, likeness);
-                //             loadState = `Preloading artist likeness for ${artistName}...`;
-                //             const img = new Image();
-                //             img.src = likeness;
-                //             img.onload = () => resolve();
-                //             img.onerror = () => {
-                //                 console.error(`Error preloading artist likeness for ${artistName}:`, likeness);
-                //                 resolve(); // resolve even on error to avoid blocking
-                //             };
-                //         });
-                //     });
-                // });
-
-
+                await preloadImages();
                 loadState = `READY`;
                 startPlaybackOnce();
             } else {
                 loadState = `Playlist is empty.`;
                 errorState = `The Melodic Decision control server could not locate any content for the playlist: BLAHBLAH. If you are an operator for this network's Melodic Decision channels, please check the playlist configuration and ensure that the playlist has valid queries and content. If you are a viewer, please contact your provider for assistance.`;
             }
-        } catch (error) {
-            console.error("Error while loading broadcast:", error);
-            loadState = `An error has occurred while loading the playlist.`;
-            errorState = `The Melodic Decision control server encountered an error while loading the broadcast. Please contact your provider for assistance.`;
-        }
+            } catch (error) {
+                console.error("Error while loading broadcast:", error);
+                loadState = `An error has occurred while loading the playlist.`;
+                errorState = `The Melodic Decision control server encountered an error while loading the broadcast. Please contact your provider for assistance.`;
+            }
+        })();
     });
 
     function handleSpecialKey(event: KeyboardEvent) {
@@ -221,6 +258,10 @@
             <div class="loading-details">
                 <h2>Melodic Decision</h2>
                 <p><i>{loadState}</i></p>
+                {#if preloadProgress.total > 0}
+                    <progress value={preloadProgress.loaded} max={preloadProgress.total}></progress>
+                    <p>{preloadProgress.loaded} of {preloadProgress.total} images ready</p>
+                {/if}
             </div>
         </div>
 
