@@ -2,6 +2,8 @@ import type { Component } from "svelte";
 
 import Ascii1998 from "./Ascii1998.svelte";
 import Bold2012 from "./Bold2012.svelte";
+import Fullscreen2021 from "./Fullscreen2021.svelte";
+
 import {
 	MDBroadcastAspectRatio,
 	MDDesignVariant,
@@ -162,6 +164,16 @@ export const designMetadata = {
             }
         ]
 	},
+    [MDDesignVariant.Fullscreen2021]: {
+        name: "Fullscreen2021",
+        description: "The Fullscreen2021 design.",
+        config: {
+			supportedAspectRatios: [MDBroadcastAspectRatio.Aspect4by3, MDBroadcastAspectRatio.Aspect16by9],
+			supportsPrimaryColor: false,
+			supportsDidYouKnowFacts: true,
+			supportsAdvertisements: true,
+		}
+    }
 } satisfies Record<MDDesignVariant, MDDesignMetadata>;
 
 export const designs = {
@@ -173,6 +185,10 @@ export const designs = {
 		...designMetadata[MDDesignVariant.Bold2012],
 		component: Bold2012,
 	},
+    [MDDesignVariant.Fullscreen2021]: {
+        ...designMetadata[MDDesignVariant.Fullscreen2021],
+        component: Fullscreen2021,
+    }
 } satisfies Record<MDDesignVariant, MDDesignDefinition>;
 
 export type MDDesignComponent = (typeof designs)[MDDesignVariant];

@@ -1,6 +1,7 @@
 <script lang="ts">    
     import Ascii1998 from "$lib/designs/Ascii1998.svelte";
     import Bold2012 from "$lib/designs/Bold2012.svelte";
+    import Fullscreen2021 from "$lib/designs/Fullscreen2021.svelte";
     import type { EvaluatedPlaylistQuery } from "$lib/playlists.js";
     import { MDDesignVariant } from "$lib/types";
     
@@ -190,11 +191,10 @@
                 <Bold2012 currentSong={currentSong} playlist={data.playlist} artistFacts={data.artistFacts} artistLikenesses={data.artistLikenesses} advertisementCampaignsWithMedia={data.advertisementCampaignsWithMedia} designOptions={broadcastStyle.designOptions} />
             {:else if broadcastStyle.design === MDDesignVariant.Ascii1998}
                 <Ascii1998 currentSong={currentSong} playlist={data.playlist} designOptions={broadcastStyle.designOptions} />
+            {:else if broadcastStyle.design === MDDesignVariant.Fullscreen2021}
+                <Fullscreen2021 currentSong={currentSong} playlist={data.playlist} artistFacts={data.artistFacts} artistLikenesses={data.artistLikenesses} advertisementCampaignsWithMedia={data.advertisementCampaignsWithMedia} designOptions={broadcastStyle.designOptions} />
             {:else}
-                <!-- fallback for unknown broadcast designs -->
-                <p>Unknown broadcast design: {broadcastStyle.design}...</p>
-                <p>{data.playlist?.name || "Unknown Playlist"}</p>
-                <p>{currentSong?.title || "Unknown Song"}</p>
+                <p>Unsupported design variant: {broadcastStyle.design}</p>
             {/if}
         {/if}
     </svelte:boundary>

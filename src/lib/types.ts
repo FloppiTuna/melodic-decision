@@ -4,6 +4,8 @@ export enum MDDesignVariant {
     Bold2012 = "bold2012",
     // Music Choice's design used from around 1998.
     Ascii1998 = "ascii1998",
+    // Music Choice's Fullscreen design used from around 2021.
+    Fullscreen2021 = "fullscreen2021",
 }
 
 export enum MDBroadcastAspectRatio {

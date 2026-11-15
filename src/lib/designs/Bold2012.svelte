@@ -24,7 +24,7 @@
     let horizontalLayout = $state("picture-dyk"); // from left to right
     let barStyle = $state("inverted"); // inverted or normal
 
-    const CYCLE_SECONDS = 30.033; // 1 cycle = 30.033 secs.
+    let CYCLE_SECONDS = $state(30); // 1 cycle = 30.033 secs.
     let cycles = $state(0);
 
     function randCyclesBetweenMinutes(minMinutes: number, maxMinutes: number) {
@@ -137,6 +137,8 @@
 
     onMount(() => {
         console.log(`designOptions:`, designOptions);
+        CYCLE_SECONDS = designOptions["cycle-duration"] || 30;
+        
         cyclesUntilHorizontalSwitch = randCyclesBetweenMinutes(
             designOptions["minimum-cycles-until-horizontal-switch"] || 1,
             designOptions["maximum-cycles-until-horizontal-switch"] || 5
