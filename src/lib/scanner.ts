@@ -96,6 +96,8 @@ async function scanLocalFolderSource(source: MediaSourceRow): Promise<void> {
             }
 
             albumEntry.tracks.push({ title: trackTitle, trackNumber: trackNumber || undefined, filePath });
+
+            console.log(`Processed file: ${filePath} - Artist: ${artistName}, Album: ${albumTitle}, Track: ${trackTitle}`);
         } catch (error) {
             console.error(`Failed to read metadata for file ${filePath}:`, error);
         }
@@ -104,14 +106,17 @@ async function scanLocalFolderSource(source: MediaSourceRow): Promise<void> {
     // try fetching musicbrainz ids for artists and albums here
     try {
         for (const artistEntry of manifest) {
+            console.log(`Searching for artist "${artistEntry.name}" on MusicBrainz...`);
             const artistSearchResults = await mbApi.search('artist', {
                 query: artistEntry.name,
                 limit: 1
             });
 
             artistEntry.musicBrainzId = artistSearchResults.artists[0]?.id;
+            console.log(`Found artist "${artistEntry.name}" on MusicBrainz: ${artistEntry.musicBrainzId}`);
 
             for (const albumEntry of artistEntry.albums) {
+                console.log(`Searching for album "${albumEntry.title}" by artist "${artistEntry.name}" on MusicBrainz...`);
                 const albumSearchResults = await mbApi.search('release-group', {
                     query: albumEntry.title,
                     artist: artistEntry.name,
@@ -174,7 +179,7 @@ async function scanLocalFolderSource(source: MediaSourceRow): Promise<void> {
 
                     fs.writeFileSync(filePath, Buffer.from(await response.arrayBuffer()));
 
-                    await createArtistLikeness(artist.id, `/${fileName}`);
+                    await createArtistLikeness(artist.id, filePath);
                 }
             }
             console.log(`Created likenesses for artist: ${artist.name}`);
