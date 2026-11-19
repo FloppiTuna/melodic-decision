@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: melodic
+      POSTGRES_PASSWORD: yourPassw0rdh3re
+      POSTGRES_DB: melodic
+    ports:
+      - "5432:5432"
+      
+  melodic:
+    build: https://github.com/floppituna/melodic-decision.git
+    ports:
+      - "3000:3000"
+    environment:
+      MD_POSTGRES_URL: postgresql://db:5432/melodic
+      MD_POSTGRES_USER: melodic
+      MD_POSTGRES_PASSWORD: yourPassw0rdh3re
+    depends_on:
+      - db
+    # if you want to provide a directory of music to melodic decision, use this:
+    # volumes:
+    #   - /blah/bloo/bleh/path-to-your-music:/opt/melodic_music
