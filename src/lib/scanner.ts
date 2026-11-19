@@ -10,6 +10,7 @@ import { createFactPool, createFactPoolFact, getFactPoolByName } from './factpoo
 import { getArtistFacts, getArtistLikenesses } from './external_sources';
 import { createArtistLikeness, getArtistLikenessByArtistId } from './likeness';
 import { DatabaseError } from 'pg';
+import fs from 'fs';
 
 const mbApi = new MusicBrainzApi({
     appName: 'melodic-decision',
@@ -49,6 +50,8 @@ export async function scanSource(sourceId: number): Promise<void> {
         case MDSourceType.LocalFolder:
             await scanLocalFolderSource(source);
             break;
+        case MDSourceType.Jellyfin:
+            throw new Error(`Jellyfin source scanning is not yet implemented.`);
         default:
             throw new Error(`Source ${source.type} cannot be scanned.`);
     }
@@ -158,7 +161,20 @@ async function scanLocalFolderSource(source: MediaSourceRow): Promise<void> {
                 
                 for (const likeness of likenesses) {
                     console.log(`ADDING a likeness for artist ${artist.name}: ${likeness.url}`);
-                    await createArtistLikeness(artist.id, likeness.url);
+
+                    // download the likeness image and save it to the static folder
+                    const response = await fetch(likeness.url);
+                    if (!response.ok) {
+                        console.error(`Failed to download likeness image from ${likeness.url}: ${response.statusText}`);
+                        continue;
+                    }
+                    const extension = path.extname(new URL(likeness.url).pathname).toLowerCase() || '.jpg';
+                    const fileName = `likeness-${artist.id}-${Date.now()}${extension}`;
+                    const filePath = path.join('static/likenesses', fileName);
+
+                    fs.writeFileSync(filePath, Buffer.from(await response.arrayBuffer()));
+
+                    await createArtistLikeness(artist.id, `/${fileName}`);
                 }
             }
             console.log(`Created likenesses for artist: ${artist.name}`);
