@@ -2,7 +2,7 @@
     import { MDSourceType } from "$lib/types";
     import type { PageData } from "./$types";
 
-    let { data }: { data: PageData } = $props();
+    let { data, form }: { data: PageData; form: any } = $props();
     let newSource = $state("");
 </script>
 
@@ -17,6 +17,13 @@
     </div>
 </div>
 
+<div>
+    {#if form?.success}
+        <p>Successful.</p>
+    {:else if form?.error}
+        <p>{form.error}</p>
+    {/if}
+</div>
 <table class="source-table">
     <thead>
         <tr>
@@ -30,7 +37,11 @@
                 <td>{source.type}: {source.name}</td>
                 <td>
                     <form method="POST" action="?/scan" class="inline-form">
-                        <input type="hidden" name="sourceId" value={source.id} />
+                        <input
+                            type="hidden"
+                            name="sourceId"
+                            value={source.id}
+                        />
                         <button type="submit">Scan</button>
                     </form>
                     <button>Edit</button>
@@ -41,12 +52,24 @@
         <tr>
             <td colspan="2">
                 <form method="POST" action="?/create" class="new-source-form">
-                    <input type="text" name="name" placeholder="Source Name" required />
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Source Name"
+                        required
+                    />
                     <select name="type" id="type">
-                        <option value={MDSourceType.LocalFolder}>Local Folder</option>
+                        <option value={MDSourceType.LocalFolder}
+                            >Local Folder</option
+                        >
                         <option value={MDSourceType.Jellyfin}>Jellyfin</option>
                     </select>
-                    <input type="text" name="config" placeholder="Source Config (JSON)" required />
+                    <input
+                        type="text"
+                        name="config"
+                        placeholder="Source Config (JSON)"
+                        required
+                    />
                     <button type="submit">Add Source</button>
                 </form>
             </td>

@@ -42,7 +42,7 @@ export const actions: Actions = {
             };
         }
 
-        await scanSource(sourceId);
+        scanSource(sourceId);
 
         return {
             success: true
