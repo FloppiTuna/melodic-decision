@@ -62,7 +62,7 @@ export async function getArtistFacts(artistName: string): Promise<string[]> {
 
     const facts: string[] = [];
 
-    $('.details-content.clearfix li').each((_, element) => {
+    $('.details-content.clearfix li:not(.comment):not(:has(.dateofexistance))').each((_, element) => {
         const factText = $(element).text().trim();
         if (factText) {
             facts.push(factText);
