@@ -175,7 +175,7 @@ async function scanLocalFolderSource(source: MediaSourceRow): Promise<void> {
                     }
                     const extension = path.extname(new URL(likeness.url).pathname).toLowerCase() || '.jpg';
                     const fileName = `likeness-${artist.id}-${Date.now()}${extension}`;
-                    const filePath = path.join('static/likenesses', fileName);
+                    const filePath = path.join('/static/likenesses', fileName);
 
                     fs.writeFileSync(filePath, Buffer.from(await response.arrayBuffer()));
 
