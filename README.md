@@ -36,27 +36,36 @@ Use the following Docker Compose configuration:
 ```yaml
 services:
   db:
-    image: postgres
+    image: postgres:16-alpine
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: melodic
-      POSTGRES_PASSWORD: yourPassw0rdh3re
-      POSTGRES_DB: melodic
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${POSTGRES_USER:-melodic}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-yourPassw0rdh3re}
+      POSTGRES_DB: ${POSTGRES_DB:-melodic}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-melodic} -d ${POSTGRES_DB:-melodic}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
       
   melodic:
-    build: https://github.com/floppituna/melodic-decision.git
+    build: .
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      MD_POSTGRES_URL: postgresql://db:5432/melodic
-      MD_POSTGRES_USER: melodic
-      MD_POSTGRES_PASSWORD: yourPassw0rdh3re
+      DATABASE_URL: postgresql://${POSTGRES_USER:-melodic}:${POSTGRES_PASSWORD:-yourPassw0rdh3re}@db:5432/${POSTGRES_DB:-melodic}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
 ```
 > [!IMPORTANT]
-> Do not use the example password (MD_POSTGRES_PASSWORD).
+> Do not use the example password (`POSTGRES_PASSWORD`).
 
 Once `melodic` is up, you can visit the administration interface at `http://DOCKER_HOST_IP:3000/admin`.
 
@@ -138,7 +147,7 @@ services:
     build: https://github.com/floppituna/bstream.git
     environment:
       URL: http://melodic:3000/broadcastv2/default-jazz # change the name at the end to whatever broadcast you'd like to use
-      STREAM: mdjazz # this will be 
+      STREAM: mdjazz # this will be the stream name on MediaMTX's end
     depends_on:
       - mediamtx
       - melodic

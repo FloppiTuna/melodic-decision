@@ -1,41 +1,27 @@
-# Dockerfile template stolen from the bun docs lol
-
-# use the official Bun image
-# see all versions at https://hub.docker.com/r/oven/bun/tags
+# syntax=docker/dockerfile:1
 FROM oven/bun:1 AS base
 WORKDIR /usr/src/app
 
-# install dependencies into temp directory
-# this will cache them and speed up future builds
 FROM base AS install
 RUN mkdir -p /temp/dev
 COPY package.json bun.lock /temp/dev/
 RUN cd /temp/dev && bun install --frozen-lockfile
 
-# install with --production (exclude devDependencies)
-RUN mkdir -p /temp/prod
-COPY package.json bun.lock /temp/prod/
-RUN cd /temp/prod && bun install --frozen-lockfile --production
-
-# copy node_modules from temp directory
-# then copy all (non-ignored) project files into the image
 FROM base AS prerelease
 COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 
-# build
 ENV NODE_ENV=production
-RUN bun run build
+RUN DATABASE_URL=postgresql://build:build@localhost:5432/build bun run build
 
-# copy production dependencies and source code into final image
 FROM base AS release
-# Use dev node_modules so `vite preview` (a devDependency) is available
 COPY --chown=bun:bun --from=install /temp/dev/node_modules node_modules
-# Copy the built output and necessary app files from the prerelease stage
 COPY --chown=bun:bun --from=prerelease /usr/src/app .
 
-# run the app
 USER bun
+ENV NODE_ENV=production \
+    HOST=0.0.0.0 \
+    PORT=3000
 EXPOSE 3000/tcp
 
-ENTRYPOINT [ "bun", "run", "preview", "--port", "3000", "--host", "0.0.0.0" ]
+CMD ["bun", "run", "docker:start"]
