@@ -10,7 +10,7 @@ import { createFactPool, createFactPoolFact, getFactPoolByName } from './factpoo
 import { getArtistFacts, getArtistLikenesses } from './external_sources';
 import { createArtistLikeness, getArtistLikenessByArtistId } from './likeness';
 import { DatabaseError } from 'pg';
-import fs from 'fs';
+import { saveStaticFile } from './server/storage';
 
 const mbApi = new MusicBrainzApi({
     appName: 'melodic-decision',
@@ -175,11 +175,13 @@ async function scanLocalFolderSource(source: MediaSourceRow): Promise<void> {
                     }
                     const extension = path.extname(new URL(likeness.url).pathname).toLowerCase() || '.jpg';
                     const fileName = `likeness-${artist.id}-${Date.now()}${extension}`;
-                    const filePath = path.join('/static/likenesses', fileName);
+                    const publicPath = saveStaticFile(
+                        'likenesses',
+                        fileName,
+                        Buffer.from(await response.arrayBuffer())
+                    );
 
-                    fs.writeFileSync(filePath, Buffer.from(await response.arrayBuffer()));
-
-                    await createArtistLikeness(artist.id, filePath);
+                    await createArtistLikeness(artist.id, publicPath);
                 }
             }
             console.log(`Created likenesses for artist: ${artist.name}`);

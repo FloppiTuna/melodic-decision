@@ -21,12 +21,18 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-melodic}:${POSTGRES_PASSWORD:-yourPassw0rdh3re}@db:5432/${POSTGRES_DB:-melodic}
+    volumes:
+      - uploads_data:/usr/src/app/static/uploads
+      - likenesses_data:/usr/src/app/static/likenesses
     depends_on:
       db:
         condition: service_healthy
-    # if you want to provide a directory of music to melodic decision, use this:
+    # For a host directory instead of a Docker volume:
     # volumes:
-    #   - /blah/bloo/bleh/path-to-your-music:/opt/melodic_music
+    #   - ./static/uploads:/usr/src/app/static/uploads
+    #   - ./static/likenesses:/usr/src/app/static/likenesses
 
 volumes:
   postgres_data:
+  uploads_data:
+  likenesses_data:

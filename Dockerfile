@@ -17,6 +17,8 @@ RUN DATABASE_URL=postgresql://build:build@localhost:5432/build bun run build
 FROM base AS release
 COPY --chown=bun:bun --from=install /temp/dev/node_modules node_modules
 COPY --chown=bun:bun --from=prerelease /usr/src/app .
+RUN mkdir -p /usr/src/app/static/uploads /usr/src/app/static/likenesses \
+    && chown -R bun:bun /usr/src/app/static/uploads /usr/src/app/static/likenesses
 
 USER bun
 ENV NODE_ENV=production \

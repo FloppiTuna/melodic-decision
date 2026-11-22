@@ -1,7 +1,8 @@
 import { eq, sql } from "drizzle-orm";
 import { db } from "./server/db/client";
 import { advertisement_campaigns, advertisement_campaign_media, type AdvertisementCampaignRow, type AdvertisementCampaignMediaRow } from "./server/db/schema";
-import fs from "fs";
+import { saveStaticFile } from "./server/storage";
+import path from "node:path";
 
 export const getAdvertisementCampaignById = async (id: number): Promise<AdvertisementCampaignRow | undefined> => {
     const result = await db.select().from(advertisement_campaigns).where(eq(advertisement_campaigns.id, id));
@@ -48,11 +49,9 @@ export const deleteMediaFromAdvertisementCampaign = async (mediaId: number): Pro
 }
 
 export const uploadAdvertisementMediaFile = async (file: File): Promise<string> => {
-    // Implement the logic to upload the file to your storage (e.g., S3, local storage, etc.)
-    // For demonstration purposes, let's assume we return a path to the uploaded file.
-    const mediaPath = `/uploads/${file.name}-${Date.now()}.${file.name.split('.').pop()}`;
-    
-    fs.writeFileSync(`./static${mediaPath}`, Buffer.from(await file.arrayBuffer()));
-
-    return mediaPath;
+    const extension = file.name.includes('.')
+        ? `.${file.name.split('.').pop()}`
+        : '';
+    const fileName = `${path.basename(file.name, path.extname(file.name))}-${Date.now()}${extension}`;
+    return saveStaticFile('uploads', fileName, Buffer.from(await file.arrayBuffer()));
 }

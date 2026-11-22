@@ -57,12 +57,17 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-melodic}:${POSTGRES_PASSWORD:-yourPassw0rdh3re}@db:5432/${POSTGRES_DB:-melodic}
+    volumes:
+      - uploads_data:/usr/src/app/static/uploads
+      - likenesses_data:/usr/src/app/static/likenesses
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   postgres_data:
+  uploads_data:
+  likenesses_data:
 ```
 > [!IMPORTANT]
 > Do not use the example password (`POSTGRES_PASSWORD`).
