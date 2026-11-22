@@ -218,7 +218,7 @@
     </div>
     <div class="detail-row">
         <div class="playlist-name" class:inverted={barStyle === "inverted"}>
-            <p>{playlist.name}</p>
+            <p>{playlist.displayName || playlist.name}</p>
         </div>
         <div class="song-details">
             <div class="logo">
