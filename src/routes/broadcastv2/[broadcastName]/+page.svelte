@@ -28,7 +28,7 @@
         releaseYear: 1984,
     });
 
-    let player: HTMLAudioElement = $state(null);
+    let player = $state<HTMLAudioElement | null>(null);
     let resolveCurrentSong: (() => void) | undefined;
     let playbackPaused = $state(false);
 
@@ -118,12 +118,13 @@
             if (!song) continue;
 
             console.log(`Playing song: ${song.title} by ${song.artistName} from album ${song.albumTitle} (${song.releaseYear})`);
-            player = new Audio(`/media/${song.id}`);
-            player.onplay = () => playbackPaused = false;
-            player.onpause = () => playbackPaused = true;
+            const currentPlayer = new Audio(`/media/${song.id}`);
+            player = currentPlayer;
+            currentPlayer.onplay = () => playbackPaused = false;
+            currentPlayer.onpause = () => playbackPaused = true;
 
             try {
-                await player.play();
+                await currentPlayer.play();
             } catch (error) {
                 console.error(`Error playing song ${song.title}:`, error); //todo: error reporting somehow idk
                 continue; // skip to the next song
@@ -132,7 +133,7 @@
             await new Promise<void>((resolve) => {
                 resolveCurrentSong = resolve;
                 console.log(`Waiting for song to finish: ${song.title}`);
-                player.onended = () => { 
+                currentPlayer.onended = () => { 
                     playbackPaused = false;
                     resolveCurrentSong = undefined;
                     console.log(`Song ended: ${song.title}`);
@@ -339,6 +340,18 @@
         align-items: center;
         font-size: 2rem;
         z-index: 1000;
+    }
+
+    .broadcast-viewport {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .broadcast-viewport > :global(*) {
+        width: 100%;
+        height: 100%;
     }
 
     .loadingOverlay {

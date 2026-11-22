@@ -5,11 +5,22 @@
 
     let { currentSong, playlist, artistFacts, artistLikenesses, advertisementCampaignsWithMedia, designOptions = {}, onDebugInfoChange = () => {} } = $props();
     let purify = createDOMPurify(window);
-    const artistImageUrls = [...new Set(Object.values(artistLikenesses || {}).flat())];
-    const advertisementImageUrls = [...new Set(
+    const artistImageUrls: string[] = [...new Set(
+        Object.entries(artistLikenesses || {}).flatMap(([, urls]) =>
+            Array.isArray(urls)
+                ? urls.filter((url): url is string => typeof url === "string")
+                : []
+        )
+    )];
+    const advertisementCampaigns = Array.isArray(advertisementCampaignsWithMedia)
+        ? advertisementCampaignsWithMedia as { media?: { mediaPath?: unknown }[] }[]
+        : [];
+    const advertisementImageUrls: string[] = [...new Set(
         // im lazy leave me alone
-        (advertisementCampaignsWithMedia || []).flatMap((campaign: {media: any[]}) =>
-            (campaign.media || []).map((media: {mediaPath: string}) => media.mediaPath)
+        advertisementCampaigns.flatMap((campaign) =>
+            (campaign.media || [])
+                .map((media) => media.mediaPath)
+                .filter((url): url is string => typeof url === "string")
         )
     )];
 
@@ -249,6 +260,8 @@
         color: white;
         display: flex;
         flex-direction: column;
+        container-type: size;
+        overflow: hidden;
     }
 
     .bold2012-root.reverse {
@@ -313,9 +326,8 @@
     .picture-row .dyk-container {
         flex: 0 0 40.625%;
         display: flex;
-        /* padding: 16px; */
         box-sizing: border-box;
-        margin-top: 72px; /* TODO: randomize this? */
+        margin-top: 6cqw;
         flex-direction: column;
         overflow: hidden;
         min-width: 0;
@@ -340,7 +352,7 @@
         width: 100%;
         padding: 0;
         margin: 0;
-        font-size: 3rem;
+        font-size: 4.5cqw;
         text-transform: uppercase;
         flex: 0 0 auto;
 
@@ -348,7 +360,7 @@
 
     .picture-row .dyk-container .dyk-title p {
         margin: 0;
-        padding-left: 16px;
+        padding-left: 1.333cqw;
         display: inline-block;
         width: 100%;
         line-height: 1;
@@ -365,9 +377,9 @@
 
     .picture-row .dyk-container .dyk-content {
         width: 100%;
-        padding: 16px;
+        padding: 1.333cqw;
         box-sizing: border-box;
-        font-size: 1.5rem;
+        font-size: 2.25cqw;
         margin-top: 0px;
         color: var(--text-color);
         overflow: hidden;
@@ -394,7 +406,7 @@
 
     .detail-row .playlist-name {
         background-color: var(--primary-color);
-        padding-left: 64px;
+        padding-left: 5.333cqw;
         color: var(--text-color);
         flex: .2;
         text-transform: uppercase;
@@ -407,14 +419,13 @@
     }
 
     .detail-row .playlist-name p {
-                align-items: center;
+        align-items: center;
         display: flex;
         height: 100%;
         width: 100%;
         margin: 0;
         line-height: 1;
-        font-size: 6vh;
-
+        font-size: 5cqw;
     }
 
     .detail-row .playlist-name.inverted {
@@ -431,21 +442,33 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        padding-left: 48px;
+        padding-left: 4cqw;
         flex: .83333;
-        gap: 32px;
+        gap: 2.667cqw;
+        min-width: 0;
+        overflow: hidden;
     }
 
     .detail-row .song-details .logo img {
         flex-shrink: 0;
         display: flex;
         align-items: center;
-        height: 72px;
+        height: 6cqw;
+        max-width: 20cqw;
+        object-fit: contain;
+    }
+
+    .detail-row .song-details .details {
+        min-width: 0;
+        overflow: hidden;
     }
 
     .detail-row .song-details .details p {
         margin: 0;
-        font-size: 24px;
+        font-size: 2cqw;
         line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 </style>

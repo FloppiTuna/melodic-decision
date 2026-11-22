@@ -20,8 +20,9 @@
 
 	.page-root {
 		/* full-viewport letterbox area (acts as background/letterbox) */
-		min-height: 100vh;
-		min-width: 100vw;
+		width: 100vw;
+		height: 100vh;
+		height: 100dvh;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -31,7 +32,7 @@
 	.aspect {
 		/* enforce 4:3 aspect, scale to fit viewport */
 		aspect-ratio: var(--aspect-width) / var(--aspect-height);
-		/* choose the largest box that fits both width and height */
+		/* Choose the largest box that fits both viewport dimensions. */
 		width: min(
 			100vw,
 			calc(100vh * (var(--aspect-width) / var(--aspect-height)))
@@ -40,12 +41,10 @@
 			100vh,
 			calc(100vw * (var(--aspect-height) / var(--aspect-width)))
 		);
-		max-width: 100%;
-		max-height: 100%;
 		background: var(--broadcast-stage, #fff); /* content background */
 		box-sizing: border-box;
-		overflow: auto; /* allow scrolling inside the aspect box if needed */
-		position: relative; /* ADDED: confine absolutely positioned children to this box */
+		overflow: hidden;
+		position: relative;
 	}
 
 	/* Make page content fill the aspect box */
