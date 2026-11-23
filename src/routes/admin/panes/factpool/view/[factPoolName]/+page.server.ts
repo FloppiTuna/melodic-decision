@@ -8,7 +8,7 @@ export async function load({ params }) {
 }
 
 export const actions: Actions = {
-    default: async ({ request }) => {
+    createFact: async ({ request }) => {
         const formData = await request.formData();
 
         await createFactPoolFact("GLOBAL", formData.get("newFact") as string);
