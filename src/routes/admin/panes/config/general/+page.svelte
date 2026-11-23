@@ -11,23 +11,3 @@
         </p>
     </div>
 </div>
-
-{#snippet Server()}
-    <p>Ordinarially this would be where server configuration options are displayed.</p>
-{/snippet}
-
-
-<MDTabView items={[
-    {
-        label: "Server",
-        content: Server
-    },
-    {
-        label: "Database",
-        content: null
-    },
-    {
-        label: "Authentication",
-        content: null
-    }
-]} />
