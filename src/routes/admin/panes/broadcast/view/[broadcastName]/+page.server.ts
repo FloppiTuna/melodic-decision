@@ -3,6 +3,7 @@ import {
     createOrUpdateBroadcastStyle,
     getBroadcastByName,
     getBroadcastStyleByBroadcastId,
+    updateBroadcastAssociatedFactPools,
 } from "$lib/broadcast";
 import type { Actions } from "./$types";
 import { designMetadata, type MDDesignMetadata } from "$lib/designs";
@@ -64,6 +65,20 @@ export const actions: Actions = {
 
         return { success: true };
     },
+
+    updateFactPools: async ({ params, request }) => {
+        const formData = await request.formData();
+        const factPoolNames = formData.getAll("factPoolNames").map(name => String(name).trim()).filter(name => name.length > 0);
+
+        const broadcast = await getBroadcastByName(params.broadcastName);
+        if (!broadcast) {
+            return fail(404, { error: "Broadcast not found." });
+        }
+
+        await updateBroadcastAssociatedFactPools(broadcast.id, factPoolNames);
+
+        return { success: true };
+    }
 };
 
 export async function load({ params }) {

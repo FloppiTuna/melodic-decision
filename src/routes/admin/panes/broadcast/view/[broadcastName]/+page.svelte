@@ -5,7 +5,11 @@
     let { data, form } = $props();
 
     let activeTab = $state("overview");
-    let selectedVariant = $state(data.broadcastStyle?.designVariant ?? MDDesignVariant.Bold2012);
+    let selectedVariant = $state(MDDesignVariant.Bold2012);
+
+    $effect(() => {
+        selectedVariant = data.broadcastStyle?.designVariant ?? MDDesignVariant.Bold2012;
+    });
 
     function metadataFor(variant: string): MDDesignMetadata | undefined {
         return data.designMetadata[variant as keyof typeof data.designMetadata] as MDDesignMetadata | undefined;
@@ -33,6 +37,7 @@
         <button class:active={activeTab === "overview"} onclick={() => activeTab = "overview"}>Overview</button>
         <button class:active={activeTab === "playlist"} onclick={() => activeTab = "playlist"}>Playlist</button>
         <button class:active={activeTab === "style"} onclick={() => activeTab = "style"}>Style</button>
+        <button class:active={activeTab === "factpools"} onclick={() => activeTab = "factpools"}>Fact Pools</button>
         <button class:active={activeTab === "advertising"} onclick={() => activeTab = "advertising"}>Advertising</button>
         <button class:active={activeTab === "live"} onclick={() => activeTab = "live"}>Live Management</button>
     </div>
@@ -97,6 +102,37 @@
                 <p>{form.error}</p>
             {/if}
             <p>Note: selecting a new style will discard the configuration of the current style.</p>
+        {:else if activeTab === "factpools"}
+            <p>available fact pools...</p>
+            <div>
+                <input type="checkbox" name="Artist-specific fact pools" checked disabled />
+                <label for="Artist-specific fact pools">Artist-specific fact pools</label>
+            </div>
+            <form method="POST" action="?/updateFactPools">
+                {#each data.factPools as factPool}
+                    {#if factPool.type !== "artistSpecific"}
+                        <div>
+                            <input
+                                type="checkbox"
+                                id={factPool.name}
+                                name="factPoolNames"
+                                value={factPool.name}
+                                checked={data.broadcast?.associatedFactPools?.includes(factPool.name) ?? false}
+                            />
+                            <label for={factPool.name}>{factPool.name}</label>
+                        </div>
+                    {/if}
+                {/each}
+                <button type="submit">Save fact pool associations</button>
+            </form>
+            {#if form?.success}
+                <p>Fact pool associations updated.</p>
+            {:else if form?.error}
+                <p>{form.error}</p>
+            {/if}
+
+
+
         {:else if activeTab === "advertising"}
             <p>Enable campaigns here.</p>
         {:else if activeTab === "live"}

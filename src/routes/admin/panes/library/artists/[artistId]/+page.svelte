@@ -53,8 +53,10 @@
                             <tr>
                                 <td>{fact.text}</td>
                                 <td>
-                                    <button>Edit</button>
-                                    <button>Delete</button>
+                                    <form method="POST" action="?/deleteFact" class="delete-fact-form">
+                                        <input type="hidden" name="factId" value={fact.id} />
+                                        <button type="submit">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
                         {/each}

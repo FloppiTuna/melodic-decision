@@ -1,5 +1,6 @@
 import { type Actions } from "@sveltejs/kit";
 import { createFactPool } from "$lib/factpools";
+import { MDDidYouKnowFactPoolType } from "$lib/types";
 
 export const actions: Actions = {
     default: async ({ request }) => {
@@ -14,7 +15,7 @@ export const actions: Actions = {
             };
         }
 
-        await createFactPool(name, description || undefined);
+        await createFactPool(name, MDDidYouKnowFactPoolType.Global, description);
 
         return {
             success: true

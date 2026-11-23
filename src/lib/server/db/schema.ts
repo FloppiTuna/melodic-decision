@@ -138,6 +138,8 @@ export const broadcasts = pgTable("broadcasts", {
   name: varchar({ length: 255 }).notNull().unique(),
   displayName: varchar({ length: 255 }),
   associatedPlaylist: integer().references(() => playlists.id, { onDelete: "set null" }),
+
+  associatedFactPools: jsonb().default([]).$type<string[]>(),
 });
 
 export type BroadcastRow = typeof broadcasts.$inferSelect;

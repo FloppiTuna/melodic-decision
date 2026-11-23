@@ -153,3 +153,7 @@ export async function getFactPoolFactById(id: number): Promise<FactPoolFactRow |
     const result = await db.select().from(factPoolFact).where(eq(factPoolFact.id, id));
     return result[0];
 }
+
+export async function deleteFactById(id: number): Promise<void> {
+    await db.delete(factPoolFact).where(eq(factPoolFact.id, id));
+}

@@ -1,6 +1,7 @@
 import {
     createArtistFactPool,
     createArtistFactPoolFact,
+    deleteFactById,
     getArtistFactPoolByArtistId,
 } from "$lib/factpools";
 import { getAllAlbums, getAllTracks, getArtistById } from "$lib/media";
@@ -39,6 +40,21 @@ export const actions: Actions = {
         await createArtistFactPoolFact(artistId, text);
 
         console.log("Created new fact for artist fact pool:", artist.name, text);
+        return { success: true };
+    },
+    deleteFact: async ({ request, params }) => {
+        const formData = await request.formData();
+        const factId = Number(formData.get("factId"));
+        const artistId = Number(params.artistId);
+ 
+        if (!Number.isInteger(factId)) {
+            return {
+                success: false,
+                error: "A valid fact ID is required"
+            };
+        }
+
+        await deleteFactById(factId);
         return { success: true };
     }
 };

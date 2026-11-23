@@ -54,3 +54,11 @@ export async function createOrUpdateBroadcastStyle(broadcastId: number, styleDat
         return result[0];
     }
 }
+
+export async function updateBroadcastAssociatedFactPools(broadcastId: number, factPoolNames: string[]): Promise<void> {
+    await db.update(broadcasts)
+        .set({ associatedFactPools: sql`CAST(${JSON.stringify(factPoolNames)} AS jsonb)` })
+        .where(eq(broadcasts.id, broadcastId));
+    
+    console.log(`Updated associated fact pools for broadcast ID ${broadcastId} to:`, factPoolNames);
+}

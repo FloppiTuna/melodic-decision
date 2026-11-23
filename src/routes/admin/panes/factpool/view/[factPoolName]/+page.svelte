@@ -25,22 +25,41 @@
                 <tr>
                     <td>{fact.text}</td>
                     <td>
-                        <button>Edit</button>
-                        <button >Delete</button>
+                        <form
+                            method="POST"
+                            action="?/deleteFact"
+                            class="delete-fact-form"
+                        >
+                            <input
+                                type="hidden"
+                                name="factId"
+                                value={fact.id}
+                            />
+                            <button type="submit">Delete</button>
+                        </form>
                     </td>
                 </tr>
             {/each}
             <tr>
                 <td colspan="2">
-                    <form method="POST" class="new-fact-form">
-                        <input type="text" id="newFact" name="newFact" bind:value={newFact} placeholder="New fact..." />
+                    <form
+                        method="POST"
+                        action="?/createFact"
+                        class="new-fact-form"
+                    >
+                        <input
+                            type="text"
+                            id="newFact"
+                            name="newFact"
+                            bind:value={newFact}
+                            placeholder="New fact..."
+                        />
                         <button type="submit">Add</button>
                     </form>
                 </td>
             </tr>
         </tbody>
     </table>
-
 </div>
 
 <style>
