@@ -4,7 +4,10 @@
     let { data, children } = $props();
 
     function isActive(path: string) {
-        return page.url.pathname === path || page.url.pathname.startsWith(`${path}/`);
+        return (
+            page.url.pathname === path ||
+            page.url.pathname.startsWith(`${path}/`)
+        );
     }
 
     function playlistPath(name: string) {
@@ -25,15 +28,43 @@
         <nav>
             <ul class="tree">
                 <li>
-                    <a class:active={isActive("/admin/panes/config/general")} href="/admin/panes/config/general">
+                    <a
+                        class:active={isActive("/admin/panes/config/general")}
+                        href="/admin/panes/config/general"
+                    >
                         General Configuration
                     </a>
                 </li>
 
                 <li>
-                    <a class:active={isActive("/admin/panes/config/sources")} href="/admin/panes/config/sources">
+                    <a
+                        class:active={isActive("/admin/panes/config/sources")}
+                        href="/admin/panes/config/sources"
+                    >
                         Source Configuration
                     </a>
+                </li>
+
+                <li>
+                    <details open>
+                        <summary>
+                            <span>Library</span>
+                            <small>0000</small>
+                        </summary>
+
+                        <ul class="tree-children">
+                            <li>
+                                <a
+                                    class:active={isActive(
+                                        "/admin/panes/library/artists",
+                                    )}
+                                    href="/admin/panes/library/artists"
+                                >
+                                    Artists
+                                </a>
+                            </li>
+                        </ul>
+                    </details>
                 </li>
 
                 <li>
@@ -45,7 +76,13 @@
 
                         <ul class="tree-children">
                             <li>
-                                <a class:active={isActive("/admin/panes/broadcast/create")} class="positive" href="/admin/panes/broadcast/create">
+                                <a
+                                    class:active={isActive(
+                                        "/admin/panes/broadcast/create",
+                                    )}
+                                    class="positive"
+                                    href="/admin/panes/broadcast/create"
+                                >
                                     Create New Broadcast
                                 </a>
                             </li>
@@ -53,18 +90,18 @@
                             {#each data.broadcasts as broadcast}
                                 <li>
                                     <a
-                                        class:active={page.url.pathname === `/admin/panes/broadcast/view/${encodeURIComponent(broadcast.name)}`}
+                                        class:active={page.url.pathname ===
+                                            `/admin/panes/broadcast/view/${encodeURIComponent(broadcast.name)}`}
                                         href={`/admin/panes/broadcast/view/${encodeURIComponent(broadcast.name)}`}
                                     >
-                                        {broadcast.displayName || broadcast.name}
+                                        {broadcast.displayName ||
+                                            broadcast.name}
                                     </a>
                                 </li>
                             {/each}
                         </ul>
                     </details>
                 </li>
-
-
 
                 <li>
                     <details open>
@@ -75,7 +112,13 @@
 
                         <ul class="tree-children">
                             <li>
-                                <a class:active={isActive("/admin/panes/advertising/create")} class="positive" href="/admin/panes/advertising/create">
+                                <a
+                                    class:active={isActive(
+                                        "/admin/panes/advertising/create",
+                                    )}
+                                    class="positive"
+                                    href="/admin/panes/advertising/create"
+                                >
                                     Create New Advertisement Campaign
                                 </a>
                             </li>
@@ -83,10 +126,12 @@
                             {#each data.advertisementCampaigns as advertisementCampaign}
                                 <li>
                                     <a
-                                        class:active={page.url.pathname === `/admin/panes/advertising/view/${encodeURIComponent(advertisementCampaign.name)}`}
+                                        class:active={page.url.pathname ===
+                                            `/admin/panes/advertising/view/${encodeURIComponent(advertisementCampaign.name)}`}
                                         href={`/admin/panes/advertising/view/${encodeURIComponent(advertisementCampaign.name)}`}
                                     >
-                                        {advertisementCampaign.displayName || advertisementCampaign.name}
+                                        {advertisementCampaign.displayName ||
+                                            advertisementCampaign.name}
                                     </a>
                                 </li>
                             {/each}
@@ -103,7 +148,13 @@
 
                         <ul class="tree-children">
                             <li>
-                                <a class:active={isActive("/admin/panes/playlist/create")} class="positive" href="/admin/panes/playlist/create">
+                                <a
+                                    class:active={isActive(
+                                        "/admin/panes/playlist/create",
+                                    )}
+                                    class="positive"
+                                    href="/admin/panes/playlist/create"
+                                >
                                     Create New Playlist
                                 </a>
                             </li>
@@ -111,7 +162,8 @@
                             {#each data.playlists as playlist}
                                 <li>
                                     <a
-                                        class:active={page.url.pathname === playlistPath(playlist.name)}
+                                        class:active={page.url.pathname ===
+                                            playlistPath(playlist.name)}
                                         href={playlistPath(playlist.name)}
                                     >
                                         {playlist.displayName || playlist.name}
@@ -126,25 +178,41 @@
                     <details open>
                         <summary>
                             <span>Fact Pools</span>
-                            <small>{data.factPools.length}</small>
+                            <!-- oughhh this is so dumbbb -->
+                            <small
+                                >{data.factPools.length -
+                                    data.factPools.filter(
+                                        (p) => p.type === "artistSpecific",
+                                    ).length}</small
+                            >
                         </summary>
 
                         <ul class="tree-children">
                             <li>
-                                <a class:active={isActive("/admin/panes/factpool/create")} class="positive" href="/admin/panes/factpool/create">
+                                <a
+                                    class:active={isActive(
+                                        "/admin/panes/factpool/create",
+                                    )}
+                                    class="positive"
+                                    href="/admin/panes/factpool/create"
+                                >
                                     Create New Fact Pool
                                 </a>
                             </li>
 
                             {#each data.factPools as factPool}
-                                <li>
-                                    <a
-                                        class:active={page.url.pathname === factPoolPath(factPool.name)}
-                                        href={factPoolPath(factPool.name)}
-                                    >
-                                        {factPool.name}
-                                    </a>
-                                </li>
+                                <!-- artist specific fact pools are gonna get put in their own place soon (whos pumped for ther library tab YAY) -->
+                                {#if factPool.type !== "artistSpecific"}
+                                    <li>
+                                        <a
+                                            class:active={page.url.pathname ===
+                                                factPoolPath(factPool.name)}
+                                            href={factPoolPath(factPool.name)}
+                                        >
+                                            {factPool.name}
+                                        </a>
+                                    </li>
+                                {/if}
                             {/each}
                         </ul>
                     </details>
@@ -176,7 +244,9 @@
     .content-view {
         background-color: #e0e0e0;
         border: 1px solid #9e9e9e;
-        box-shadow: inset 3px 3px 6px #bcbcbc, inset -3px -3px 6px #ffffff;
+        box-shadow:
+            inset 3px 3px 6px #bcbcbc,
+            inset -3px -3px 6px #ffffff;
         /* height: calc(100vh - 32px); */
         overflow: auto;
     }
@@ -191,7 +261,7 @@
         flex: 1;
         padding: 20px;
     }
-    
+
     .tree,
     .tree-children {
         list-style: none;
@@ -299,4 +369,7 @@
     :global(.hero-row) p {
         margin: 0;
     }
+
+
+    
 </style>

@@ -82,6 +82,9 @@ export const factPool = pgTable("fact_pool", {
   name: varchar({ length: 255 }).notNull().unique(),
   type: factPoolType().notNull().default(MDDidYouKnowFactPoolType.Global),
   description: text(),
+  artistId: integer("artist_id")
+    .unique()
+    .references(() => artists.id, { onDelete: "cascade" }),
 });
 
 export type FactPoolRow = typeof factPool.$inferSelect;

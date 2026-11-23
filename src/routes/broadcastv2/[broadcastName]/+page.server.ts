@@ -1,7 +1,7 @@
 import { getAdvertisementCampaignMediaByCampaignId, getAllAdvertisementCampaigns } from "$lib/ad_campaigns";
 import { getBroadcastById, getBroadcastByName, getBroadcastStyleByBroadcastId } from "$lib/broadcast";
 import { getArtistLikenesses } from "$lib/external_sources";
-import { getFactPoolByName } from "$lib/factpools";
+import { getArtistFactPoolByArtistId, getFactPoolByName } from "$lib/factpools";
 import { getArtistLikenessByArtistId } from "$lib/likeness";
 import { getPlaylistByName, getPlaylistQueriesByPlaylistId, evaluatePlaylistQueries, getPlaylistById } from "$lib/playlists";
 
@@ -61,7 +61,8 @@ export async function load({ params }) {
 
     const artistFacts: Record<string, string[]> = {};
     for (const artist of artists) {
-        const factPool = await getFactPoolByName(artist.name);
+        const factPool = await getArtistFactPoolByArtistId(artist.id)
+            ?? await getFactPoolByName(artist.name);
         if (factPool) {
             artistFacts[artist.name] = factPool.facts.map(f => f.text);
         }

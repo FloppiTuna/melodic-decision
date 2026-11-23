@@ -31,15 +31,4 @@
     .errortext {
         color: red;
     }
-
-
-    .tabs .tab {
-        height: 24px;
-        cursor: pointer;
-    }
-
-    .tabs .tab.active {
-        font-weight: bold;
-        background-color: #D2E4FF;
-    }
 </style>

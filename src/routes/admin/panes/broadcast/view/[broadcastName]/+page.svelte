@@ -41,7 +41,7 @@
         {#if activeTab === "overview"}
             <p>Overview content goes here.</p>
         {:else if activeTab === "playlist"}
-            <p>Playlist content goes here.</p>
+            <p>Currently assigned playlist: {data.broadcast?.associatedPlaylist}</p>
         {:else if activeTab === "style"}
             <p>Current style: {data.broadcastStyle?.designVariant}</p> 
             <p>Change the style of the broadcast:</p>
@@ -107,23 +107,6 @@
 </div>
 
 <style>
-    .tabs {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-    }
-
-    .tabs button {
-        padding: 8px 16px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-    }
-
-    .tabs button.active {
-        background-color: #007BFF;
-        font-weight: bold;
-    }
-
     .option-section {
         margin-top: 20px;
         padding: 10px;
