@@ -165,6 +165,23 @@ export const settings = pgTable("settings", {
 
 export type SettingsRow = typeof settings.$inferSelect;
 
+// export const branding = pgTable("branding", {
+//   id: integer().primaryKey().generatedAlwaysAsIdentity(),
+//   name: varchar({ length: 255 }).notNull().unique(),
+//   displayName: varchar({ length: 255 }),
+// });
+
+// export type BrandingRow = typeof branding.$inferSelect;
+
+// export const branding_assets = pgTable("branding_assets", {
+//   id: integer().primaryKey().generatedAlwaysAsIdentity(),
+//   brandingId: integer().notNull().references(() => branding.id, { onDelete: "cascade" }),
+//   assetType: varchar({ length: 255 }).notNull(),
+//   assetPath: varchar({ length: 255 }).notNull(),
+// });
+
+// export type BrandingAssetsRow = typeof branding_assets.$inferSelect;
+
 // export const didYouKnowFactTypeEnum = pgEnum("md_did_you_know_fact_type", [
 //   MDDidYouKnowFactType.Global,
 //   MDDidYouKnowFactType.PlaylistSpecific,
