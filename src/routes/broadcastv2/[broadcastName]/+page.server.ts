@@ -87,6 +87,12 @@ export async function load({ params }) {
         };
     }));
     console.log("advertisementCampaignsWithMedia", advertisementCampaignsWithMedia);
+
+    // collect other fact pools enabled for this broadcast
+    const factPools = await Promise.all(broadcast.associatedFactPools?.map(async (factPoolName) => {
+        return await getFactPoolByName(factPoolName);
+    }) || []);
+
     return {
         name: broadcast.name,
         broadcast: broadcast,
@@ -96,6 +102,8 @@ export async function load({ params }) {
         evaluatedQueries: evaluatedQueries,
         artistFacts: artistFacts,
         artistLikenesses: artistLikenesses,
-        advertisementCampaignsWithMedia: advertisementCampaignsWithMedia
+        advertisementCampaignsWithMedia: advertisementCampaignsWithMedia,
+
+        associatedFactPools: factPools
     };
 }

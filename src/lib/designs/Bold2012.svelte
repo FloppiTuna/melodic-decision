@@ -3,7 +3,7 @@
 
     import { onMount } from "svelte";
 
-    let { currentSong, playlist, artistFacts, artistLikenesses, advertisementCampaignsWithMedia, designOptions = {}, onDebugInfoChange = () => {} } = $props();
+    let { currentSong, playlist, artistFacts, artistLikenesses, advertisementCampaignsWithMedia, designOptions = {}, onDebugInfoChange = () => {}, associatedFactPools = [] } = $props();
     let purify = createDOMPurify(window);
     const artistImageUrls: string[] = [...new Set(
         Object.entries(artistLikenesses || {}).flatMap(([, urls]) =>
@@ -122,12 +122,31 @@
 
         // pick a random fact (TODO: respect attached pools or wtever)
         // uhh i kinda just moved this here for now cuz of the ad switching thing is htere a btter way ti do this siigh
+
         const facts = artistFacts[currentSong.artistName] || [];
         if (facts.length > 0) {
-            const randomFact = facts[Math.floor(Math.random() * facts.length)];
-            visibleFact = randomFact;
+            if (Math.random() < .6) {
+                const randomFact = facts[Math.floor(Math.random() * facts.length)];
+                visibleFact = randomFact;
+            } else {
+                // todo: refactor this 
+                const allAssociatedFacts = associatedFactPools.flatMap(pool => pool.facts || []);
+                if (allAssociatedFacts.length > 0) {
+                    const randomFact = allAssociatedFacts[Math.floor(Math.random() * allAssociatedFacts.length)];
+                    visibleFact = randomFact.text;
+                } else {
+                    visibleFact = "You're listening to Melodic Decision"; // fallback
+                }
+            }
         } else {
-            visibleFact = "You're listening to Melodic Decision";
+            // random fact from one of the associated fact pools
+            const allAssociatedFacts = associatedFactPools.flatMap(pool => pool.facts || []);
+            if (allAssociatedFacts.length > 0) {
+                const randomFact = allAssociatedFacts[Math.floor(Math.random() * allAssociatedFacts.length)];
+                visibleFact = randomFact.text;
+            } else {
+                visibleFact = "You're listening to Melodic Decision"; // fallback
+            }
         }
 
         // update visible song information for this cycle
@@ -172,6 +191,7 @@
     }
 
     onMount(() => {
+        console.log(associatedFactPools);
         console.log(`designOptions:`, designOptions);
         CYCLE_SECONDS = designOptions["cycle-duration"] || 30;
         
@@ -218,7 +238,7 @@
                     <p>DID YOU KNOW?</p>
                 </div>
                 <div class="dyk-content">
-                    <p>{@html purify.sanitize(visibleFact, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'] })}</p>
+                    <p>{@html purify.sanitize(visibleFact, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'span'] })}</p>
                 </div>
             {:else if visibleFactMode === "ad"}
                 {#each advertisementImageUrls as imageUrl}

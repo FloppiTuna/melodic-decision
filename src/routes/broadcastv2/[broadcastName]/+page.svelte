@@ -295,7 +295,7 @@
     }}>
         {#if loadState === "READY"}
             {#if broadcastStyle.design === MDDesignVariant.Bold2012}
-                <Bold2012 currentSong={currentSong} playlist={data.playlist} artistFacts={data.artistFacts} artistLikenesses={data.artistLikenesses} advertisementCampaignsWithMedia={data.advertisementCampaignsWithMedia} designOptions={broadcastStyle.designOptions} onDebugInfoChange={(info: Record<string, unknown>) => designDebugInfo = info} />
+                <Bold2012 currentSong={currentSong} playlist={data.playlist} artistFacts={data.artistFacts} artistLikenesses={data.artistLikenesses} advertisementCampaignsWithMedia={data.advertisementCampaignsWithMedia} designOptions={broadcastStyle.designOptions} onDebugInfoChange={(info: Record<string, unknown>) => designDebugInfo = info} associatedFactPools={data.associatedFactPools} />
             {:else if broadcastStyle.design === MDDesignVariant.Ascii1998}
                 <Ascii1998 currentSong={currentSong} playlist={data.playlist} designOptions={broadcastStyle.designOptions} />
             {:else if broadcastStyle.design === MDDesignVariant.Fullscreen2021}
