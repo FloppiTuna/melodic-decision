@@ -99,15 +99,6 @@
                     return;
                 }
 
-                if (
-                    isRecord(response) &&
-                    response.type === "error" &&
-                    typeof response.message === "string"
-                ) {
-                    fail(new Error(response.message));
-                    return;
-                }
-
                 if (isExpectedResponse(response)) finish({ response });
             };
             const onError = () => fail(new Error("WebSocket connection failed."));
@@ -275,7 +266,7 @@
                 loadState = `Registering broadcast...`
 
                 // send register message and wait for success
-                const registerResult = await sendSocketMessageAndWait(
+                await sendSocketMessageAndWait(
                     socket,
                     { type: "register", message: "Registering broadcast", data: { broadcastName: params.broadcastName } },
                     (response: unknown): response is SocketResponse =>
@@ -290,11 +281,6 @@
                         response.data.broadcastName === params.broadcastName,
                 );
 
-                if (!registerResult) {
-                    loadState = `Error registering broadcast.`;
-                    errorState = `The Melodic Decision control server could not register the broadcast "${params.broadcastName}".`;
-                    return;
-                }
 
 
                 loadState = `Applying broadcast style configuration...`;
