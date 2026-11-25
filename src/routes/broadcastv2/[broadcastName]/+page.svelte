@@ -6,7 +6,7 @@
     import { MDDesignVariant } from "$lib/types";
     import { onDestroy } from "svelte";
 
-    let { data, params } = $props();
+    let { data } = $props();
 
     let loadState = $state("Please wait...");
     let errorState = $state("");
@@ -38,89 +38,6 @@
     let playbackStarted = false;
     let playbackCancelled = false;
     let loadingStarted = false;
-
-    let remoteManagementWebSocket: WebSocket | null = null;
-    let messages = $state<string[]>([]);
-
-    function isRecord(value: unknown): value is Record<string, unknown> {
-        return typeof value === "object" && value !== null;
-    }
-
-    type SocketResponse = {
-        type: string;
-        message: string;
-        data: Record<string, unknown> | undefined;
-    };
-
-    function sendSocketMessageAndWait<TResponse>(
-        socket: WebSocket,
-        message: Record<string, unknown>,
-        isExpectedResponse: (response: unknown) => response is TResponse,
-        timeoutMs = 5000,
-    ): Promise<TResponse> {
-        return new Promise<TResponse>((resolve, reject) => {
-            let settled = false;
-            let timeout: ReturnType<typeof setTimeout>;
-
-            const finish = (result: { error: Error } | { response: TResponse }) => {
-                if (settled) return;
-                settled = true;
-                clearTimeout(timeout);
-                socket.removeEventListener("open", onOpen);
-                socket.removeEventListener("message", onMessage);
-                socket.removeEventListener("error", onError);
-                socket.removeEventListener("close", onClose);
-                if ("error" in result) reject(result.error);
-                else resolve(result.response);
-            };
-            const fail = (error: unknown) => {
-                finish({ error: error instanceof Error ? error : new Error(String(error)) });
-            };
-
-            const send = () => {
-                try {
-                    socket.send(JSON.stringify(message));
-                } catch (error) {
-                    fail(error);
-                }
-            };
-            const onOpen = () => send();
-            const onMessage = (event: MessageEvent) => {
-                if (typeof event.data !== "string") {
-                    fail(new Error("Received a non-text response from the control server."));
-                    return;
-                }
-
-                let response: unknown;
-                try {
-                    response = JSON.parse(event.data);
-                } catch (error) {
-                    fail(error);
-                    return;
-                }
-
-                if (isExpectedResponse(response)) finish({ response });
-            };
-            const onError = () => fail(new Error("WebSocket connection failed."));
-            const onClose = () => fail(new Error("WebSocket closed before the response."));
-
-            timeout = setTimeout(
-                () => fail(new Error("Timed out waiting for the control server response.")),
-                timeoutMs,
-            );
-            socket.addEventListener("open", onOpen);
-            socket.addEventListener("message", onMessage);
-            socket.addEventListener("error", onError);
-            socket.addEventListener("close", onClose);
-
-            if (socket.readyState === WebSocket.OPEN) {
-                send();
-            } else if (socket.readyState !== WebSocket.CONNECTING) {
-                fail(new Error("Cannot send a message on a closed WebSocket."));
-            }
-        });
-    }
-
 
     function preloadImage(url: string, onComplete: () => void) {
         return new Promise<void>((resolve) => {
@@ -242,54 +159,19 @@
 
         void (async () => {
             try {
-                if (!data.broadcast) {
-                    loadState = `Broadcast configuration error :(`;
-                    errorState = `Broadcast configuration missing for broadcast "${params.broadcastName}".`;
-                    return;
-                }
+            if (!data.playlist) {
+                loadState = `An error has occurred while loading the playlist.`;
+                errorState = `The Melodic Decision control server could not locate the playlist: ${data.broadcast?.name || "Unknown Broadcast"}. If you are an operator for this network's Melodic Decision channels, please check the broadcast configuration and ensure that it has an associated playlist. If you are a viewer, please contact your provider for assistance.`;
+                return;
+            }
 
-                // register broadcast with control server
-                loadState = `Waiting for the Melodic Decision control server...`;
-                try {
-                    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-                    remoteManagementWebSocket = new WebSocket(`${proto}//${location.host}/ws`);
-                    remoteManagementWebSocket.onmessage = (event) => (messages = [...messages, event.data]);
-                } catch (error) {
-                    console.error("Error connecting to control server:", error);
-                    loadState = `Error connecting to the Melodic Decision control server.`;
-                    errorState = `The Melodic Decision control server could not be reached.`;
-                    return;
-                }
+            loadState = `Applying broadcast style configuration...`;
 
-                const socket = remoteManagementWebSocket;
+            broadcastStyle.aspectRatio = data.broadcastStyle?.aspectRatio || "4:3";
+            broadcastStyle.design = data.broadcastStyle?.designVariant || MDDesignVariant.Bold2012;
+            broadcastStyle.designOptions = data.broadcastStyle?.designOptions || {};
 
-                loadState = `Registering broadcast...`
-
-                // send register message and wait for success
-                await sendSocketMessageAndWait(
-                    socket,
-                    { type: "register", message: "Registering broadcast", data: { broadcastName: params.broadcastName } },
-                    (response: unknown): response is SocketResponse =>
-                        isRecord(response) &&
-                        typeof response.type === "string" &&
-                        typeof response.message === "string" &&
-                        (response.data === undefined || isRecord(response.data)) &&
-                        response.type === "register" &&
-                        response.message === "Registered successfully" &&
-                        isRecord(response.data) &&
-                        typeof response.data.broadcastName === "string" &&
-                        response.data.broadcastName === params.broadcastName,
-                );
-
-
-
-                loadState = `Applying broadcast style configuration...`;
-
-                broadcastStyle.aspectRatio = data.broadcastStyle?.aspectRatio || "4:3";
-                broadcastStyle.design = data.broadcastStyle?.designVariant || MDDesignVariant.Bold2012;
-                broadcastStyle.designOptions = data.broadcastStyle?.designOptions || {};
-
-                if (broadcastStyle.aspectRatio === "16:9") {
+            if (broadcastStyle.aspectRatio === "16:9") {
                 document.documentElement.style.setProperty(
                     "--aspect-width",
                     "16"
@@ -320,7 +202,7 @@
             } catch (error) {
                 console.error("Error while loading broadcast:", error);
                 loadState = `An error has occurred while loading the playlist.`;
-                errorState = `The Melodic Decision control server encountered an error while loading the broadcast. ${error instanceof Error ? error.message : "Unknown error"}.`;
+                errorState = `The Melodic Decision control server encountered an error while loading the broadcast. Please contact your provider for assistance.`;
             }
         })();
     });
@@ -334,16 +216,11 @@
             resolveCurrentSong = undefined;
         } else if (event.key === "d") {
             debugMode = !debugMode;
-        } else if (event.key === "t") {
-            // socket test
-            remoteManagementWebSocket?.send("Test message from broadcast");
         }
     }
 
     onDestroy(() => {
         playbackCancelled = true;
-        remoteManagementWebSocket?.close();
-        remoteManagementWebSocket = null;
         player?.pause();
         player?.removeAttribute("src");
         player?.load();
